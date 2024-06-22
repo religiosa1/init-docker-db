@@ -16,7 +16,7 @@ The easiest way is to launch the script in wizard mode:
 
 ```bash
 ./init-docker-db
-database type? [postgres,mysql] (postgres):
+database type? [postgres,mssql,mysql] (postgres):
 > your database type here
 database name? (db):
 > your database name here
@@ -29,7 +29,7 @@ docker container name? (apathetic-devotion):
 ```
 
 It will create a database container with set parameters, exposing its port (depending
-on the type, 5432 for postgres, 3306 for MySql).
+on the type, 5432 for postgres, 3306 for MySql, 1433 for MsSql).
 
 Alternatively, you can configure any of the parameters and the port by the CLI
 flags:
@@ -40,7 +40,8 @@ Positionals:
 
 Options:
       --version          Show version number                           [boolean]
-  -t, --type             database type   [string] [choices: "postgres", "mysql"]
+  -t, --type             database type
+                                [string] [choices: "postgres", "mssql", "mysql"]
   -u, --user             database user                                  [string]
   -d, --database         database name                                  [string]
   -p, --password         user's password                                [string]
@@ -52,7 +53,7 @@ Options:
   -h, --help             Show help                                     [boolean]
 ```
 
-For MySQL as there is a separate root user with a predefined name
+For MySQL and MsSQL as there is a separate root user with a predefined name
 (root and SA correspondingly), we're using the same password for root access
 and user access. It's a _disposable_ database after all.
 
@@ -60,6 +61,9 @@ and user access. It's a _disposable_ database after all.
 
 The easiest way to install and use this script is to grab an executable
 from the latest release and drop it somewhere in your PATH.
+
+Operation of course requires docker-engine to be available on your machine, with
+the `docker` command available in the PATH.
 
 ## Compilation
 

@@ -7,10 +7,12 @@ import { LazyReadline, ReadlineDisabledError } from "./src/LazyReadline";
 import { PossibleDbTypes, isValidDbType } from "./src/PossibleDbTypes";
 import { DbCreator, type IDbCreateOptions } from "./src/DbCreator";
 import { Postgres } from "./src/Postgres";
+import { MsSql } from "./src/MsSql";
 import { MySql } from "./src/MySql";
 
 const creators: Readonly<Record<PossibleDbTypes, DbCreator>> = {
 	postgres: Postgres,
+	mssql: MsSql,
 	mysql: MySql,
 };
 
@@ -81,6 +83,7 @@ async function main(args: CliArgs): Promise<void> {
 		throw e;
 	}
 	await creator.create(options);
+	console.log("Done");
 }
 
 async function getCreator(rl: LazyReadline, type: string | undefined): Promise<DbCreator> {
@@ -123,9 +126,17 @@ async function getOptions(rl: LazyReadline, creator: DbCreator, args: CliArgs): 
 		opts.user ||= USER_DEFAULT;
 	}
 	if (!opts.password) {
-		const PASSWORD_DEFAULT = "123456";
-		opts.password = await rl.question(`database password? (${PASSWORD_DEFAULT}): `);
-		opts.password ||= PASSWORD_DEFAULT;
+		for (;;) {
+			const PASSWORD_DEFAULT = creator.defaultPassword;
+			opts.password = await rl.question(`database password? (${PASSWORD_DEFAULT}): `);
+			opts.password ||= PASSWORD_DEFAULT;
+
+			const [valid, message] = creator.isPasswordValid(opts.password);
+			if (valid) {
+				break;
+			}
+			console.log(message || "Password is invalid");
+		}
 	}
 	if (!opts.containerName) {
 		const name = generateName().dashed;

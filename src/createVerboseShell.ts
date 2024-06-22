@@ -12,7 +12,7 @@ export function createVerboseShell(
 					result += $.escape(String(expressions[i]));
 				}
 			}
-			console.log("CMD:", result);
+			// console.log("CMD:", result);
 		}
 		return $(strings, ...expressions);
 	};
