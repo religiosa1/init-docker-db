@@ -1,3 +1,4 @@
+import { $ } from "bun";
 import { DbCreator } from "./DbCreator";
 
 export const MySql = new DbCreator({
@@ -5,6 +6,12 @@ export const MySql = new DbCreator({
 	port: 3306,
 	defaultUser: "mysql",
 	async create(opts) {
-		throw new Error("Not implemented");
+		await $`docker run --name ${opts.containerName}\
+-e MYSQL_USER=${opts.password}\
+-e MYSQL_ROOT_PASSWORD=${opts.password}\
+-e MYSQL_PASSWORD=${opts.password}\
+-e MYSQL_DATABASE=${opts.database}\
+-p ${this.port}:${opts.port}\
+-d mysql:lts`;
 	},
 });
