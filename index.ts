@@ -7,12 +7,10 @@ import { LazyReadline, ReadlineDisabledError } from "./src/LazyReadline";
 import { PossibleDbTypes, isValidDbType } from "./src/PossibleDbTypes";
 import { DbCreator, type IDbCreateOptions } from "./src/DbCreator";
 import { Postgres } from "./src/Postgres";
-import { MsSql } from "./src/MsSql";
 import { MySql } from "./src/MySql";
 
 const creators: Readonly<Record<PossibleDbTypes, DbCreator>> = {
 	postgres: Postgres,
-	mssql: MsSql,
 	mysql: MySql,
 };
 
