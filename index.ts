@@ -125,9 +125,17 @@ async function getOptions(rl: LazyReadline, creator: DbCreator, args: CliArgs): 
 		opts.user ||= USER_DEFAULT;
 	}
 	if (!opts.password) {
-		const PASSWORD_DEFAULT = "123456";
-		opts.password = await rl.question(`database password? (${PASSWORD_DEFAULT}): `);
-		opts.password ||= PASSWORD_DEFAULT;
+		for (;;) {
+			const PASSWORD_DEFAULT = creator.defaultPassword;
+			opts.password = await rl.question(`database password? (${PASSWORD_DEFAULT}): `);
+			opts.password ||= PASSWORD_DEFAULT;
+
+			const [valid, message] = creator.isPasswordValid(opts.password);
+			if (valid) {
+				break;
+			}
+			console.log(message || "Password is invalid");
+		}
 	}
 	if (!opts.containerName) {
 		const name = generateName().dashed;

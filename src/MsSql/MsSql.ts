@@ -1,13 +1,30 @@
-import { DbCreator } from "./DbCreator";
-import { createVerboseShell } from "./createVerboseShell";
+import { DbCreator, type PasswordValidityTuple } from "../DbCreator";
+import { createVerboseShell } from "../createVerboseShell";
+
+import { MsSqlPwdValidityEnum, msSqlPwdValidityEnumMessage } from "./MsSqlPwdValidityEnum";
+
+const PWD_COMPLEXITY_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/;
 
 export const MsSql = new DbCreator({
 	name: "mssql",
 	port: 1433,
 	defaultUser: "mssql",
 	defaultTag: "2022-latest",
-	// TODO password validation, as group policy requires for it to be 10 chars long and have at
-	// least one upper and lowercase and a digit
+	defaultPassword: "Password12",
+
+	isPasswordValid(password: string): PasswordValidityTuple {
+		if (!password.length) {
+			return [false, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.Empty]];
+		}
+		if (password.length < 10) {
+			return [false, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.TooShort]];
+		}
+		if (!PWD_COMPLEXITY_REGEX.test(password)) {
+			return [false, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.TooSimple]];
+		}
+		return [true, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.Valid]];
+	},
+
 	async create(opts) {
 		const vlog = (...args: unknown[]) => (opts.verbose ? console.log("verbose:", ...args) : () => {});
 
