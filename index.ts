@@ -83,6 +83,7 @@ async function main(args: CliArgs): Promise<void> {
 		throw e;
 	}
 	await creator.create(options);
+	console.log("Done");
 }
 
 async function getCreator(rl: LazyReadline, type: string | undefined): Promise<DbCreator> {

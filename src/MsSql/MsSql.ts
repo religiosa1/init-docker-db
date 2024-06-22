@@ -3,6 +3,7 @@ import { createVerboseShell } from "../createVerboseShell";
 
 import { MsSqlPwdValidityEnum, msSqlPwdValidityEnumMessage } from "./MsSqlPwdValidityEnum";
 import { escapeId, escapeUser, escapeStr } from "./escape";
+import { waitFor } from "./waitFor";
 
 const PWD_COMPLEXITY_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/;
 
@@ -40,17 +41,23 @@ export const MsSql = new DbCreator({
 -d mcr.microsoft.com/mssql/server:${this.defaultTag}`;
 		const contId = shellOutput.text().trim();
 
-		const sqlcmd = async (sql: string) => $`docker exec -it ${contId} \
+		// TODO: parse the resposnse os SQL server and check for potential errors
+		const sqlcmd = async (sql: string) => {
+			let prms = $`docker exec -it ${contId} \
 /opt/mssql-tools/bin/sqlcmd -S localhost \
--U SA -P Password12 -Q ${sql}`;
+-U SA -P Password12 -Q ${sql} || exit 1`;
+			if (!opts.verbose) {
+				prms = prms.quiet();
+			}
+			return prms;
+		};
 
-		vlog("Waiting for db to be up and running");
+		console.log("Waiting for db to be up and running");
 
-		// TODO: Replace with healthcheck polling
 		// https://docs.docker.com/engine/reference/run/#healthchecks
-		await pause(20_000);
+		await waitFor(() => sqlcmd("SELECT 1"));
 
-		vlog("Creating the database");
+		console.log("Creating the database and required data...");
 		// TODO: parse the resposnse os SQL server and check for potential errors
 		await sqlcmd(`CREATE DATABASE ${escapeId(opts.database)}`);
 
@@ -67,7 +74,3 @@ export const MsSql = new DbCreator({
 		await sqlcmd(`exec sp_addrolemember ${escapeStr(opts.user)}, 'dbowner'`);
 	},
 });
-
-function pause(timeout = 3000) {
-	return new Promise<void>((res) => setTimeout(res, timeout));
-}
