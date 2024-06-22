@@ -62,6 +62,9 @@ and user access. It's a _disposable_ database after all.
 The easiest way to install and use this script is to grab an executable
 from the latest release and drop it somewhere in your PATH.
 
+Operation of course requires docker-engine to be available on your machine, with
+the `docker` command available in the PATH.
+
 ## Compilation
 
 To install dependencies:

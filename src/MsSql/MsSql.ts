@@ -42,7 +42,13 @@ export const MsSql = new DbCreator({
 		const contId = shellOutput.text().trim();
 
 		// TODO: parse the resposnse os SQL server and check for potential errors
-		const sqlcmd = async (sql: string) => {
+		const sqlcmd = async (sql: string, db?: string) => {
+			if (db) {
+				sql = `use ${escapeId(opts.database)}\n` + sql;
+			}
+			if (opts.verbose) {
+				console.log("SQL:", sql.includes("\n") ? "\n" + sql + " --> END SQL" : sql);
+			}
 			let prms = $`docker exec -it ${contId} \
 /opt/mssql-tools/bin/sqlcmd -S localhost \
 -U SA -P Password12 -Q ${sql} || exit 1`;
@@ -52,7 +58,7 @@ export const MsSql = new DbCreator({
 			return prms;
 		};
 
-		console.log("Waiting for db to be up and running");
+		console.log("Waiting for db to be up and running...");
 
 		// https://docs.docker.com/engine/reference/run/#healthchecks
 		await waitFor(() => sqlcmd("SELECT 1"));
@@ -65,12 +71,10 @@ export const MsSql = new DbCreator({
 		await sqlcmd(`CREATE LOGIN ${escapeUser(opts.user)} WITH PASSWORD = ${escapeStr(opts.password)}`);
 
 		vlog("Creating user");
-		await sqlcmd(
-			`use ${escapeId(opts.database)}\n` + //
-				`create user ${escapeUser(opts.user)} for login ${escapeUser(opts.user)}`
-		);
+		await sqlcmd(`create user ${escapeUser(opts.user)} for login ${escapeUser(opts.user)}`, opts.database);
 
+		// To check available roles: Select	[name] From sysusers Where issqlrole = 1
 		vlog("Adding required permissions");
-		await sqlcmd(`exec sp_addrolemember ${escapeStr(opts.user)}, 'dbowner'`);
+		await sqlcmd(`exec sp_addrolemember 'db_owner', ${escapeStr(opts.user)}`, opts.database);
 	},
 });
