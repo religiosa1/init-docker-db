@@ -5,7 +5,6 @@ export const Postgres = new DbCreator({
 	name: "postgres",
 	port: 5432,
 	defaultUser: "postgres",
-	defaultTag: "latest",
 	async create(opts) {
 		const $ = createVerboseShell(opts.verbose);
 
@@ -15,6 +14,6 @@ export const Postgres = new DbCreator({
 -e POSTGRES_USER=${opts.user} \
 -e POSTGRES_DB=${opts.database} \
 -p ${this.port}:${opts.port} \
--d postgres`;
+-d postgres:${opts.port}`;
 	},
 });

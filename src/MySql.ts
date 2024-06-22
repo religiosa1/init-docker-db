@@ -15,6 +15,6 @@ export const MySql = new DbCreator({
 -e MYSQL_PASSWORD=${opts.password}\
 -e MYSQL_DATABASE=${opts.database}\
 -p ${this.port}:${opts.port}\
--d mysql:${this.defaultTag}`;
+-d mysql:${opts.tag}`;
 	},
 });

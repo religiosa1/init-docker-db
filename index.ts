@@ -4,17 +4,8 @@ import { hideBin } from "yargs/helpers";
 import generateName from "boring-name-generator";
 
 import { LazyReadline, ReadlineDisabledError } from "./src/LazyReadline";
-import { PossibleDbTypes, isValidDbType } from "./src/PossibleDbTypes";
+import { dbTypesList, type DbType, isValidDbType, dbTypes } from "./src/dbTypes";
 import { DbCreator, type IDbCreateOptions } from "./src/DbCreator";
-import { Postgres } from "./src/Postgres";
-import { MsSql } from "./src/MsSql";
-import { MySql } from "./src/MySql";
-
-const creators: Readonly<Record<PossibleDbTypes, DbCreator>> = {
-	postgres: Postgres,
-	mssql: MsSql,
-	mysql: MySql,
-};
 
 const args = await yargs(hideBin(process.argv))
 	.usage("Create a database container")
@@ -25,7 +16,7 @@ const args = await yargs(hideBin(process.argv))
 	.option("type", {
 		alias: "t",
 		type: "string",
-		choices: PossibleDbTypes,
+		choices: dbTypesList,
 		description: "database type",
 	})
 	.option("user", {
@@ -87,18 +78,18 @@ async function main(args: CliArgs): Promise<void> {
 }
 
 async function getCreator(rl: LazyReadline, type: string | undefined): Promise<DbCreator> {
-	let creator: DbCreator | undefined = creators[type as PossibleDbTypes];
+	let creator: DbCreator | undefined = dbTypes[type as DbType];
 	while (!creator) {
 		const TYPE_DEFAULT = "postgres";
-		const answer = await rl.question(`database type? [${PossibleDbTypes.join()}] (${TYPE_DEFAULT}): `);
+		const answer = await rl.question(`database type? [${dbTypesList.join()}] (${TYPE_DEFAULT}): `);
 		if (!answer.trim()) {
-			creator = creators[TYPE_DEFAULT];
+			creator = dbTypes[TYPE_DEFAULT];
 			break;
 		}
 		if (isValidDbType(answer)) {
-			creator = creators[answer];
+			creator = dbTypes[answer];
 		} else {
-			console.log("Incorrect DB type, possible types are: " + PossibleDbTypes.join());
+			console.log("Incorrect DB type, possible types are: " + dbTypesList.join());
 		}
 	}
 	return creator;

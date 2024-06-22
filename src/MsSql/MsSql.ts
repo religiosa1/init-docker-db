@@ -38,7 +38,7 @@ export const MsSql = new DbCreator({
 --hostname ${opts.containerName}\
 -e MSSQL_SA_PASSWORD=${opts.password}\
 -p ${this.port}:${opts.port}\
--d mcr.microsoft.com/mssql/server:${this.defaultTag}`;
+-d mcr.microsoft.com/mssql/server:${opts.tag}`;
 		const contId = shellOutput.text().trim();
 
 		// TODO: parse the resposnse os SQL server and check for potential errors

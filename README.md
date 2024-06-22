@@ -16,7 +16,7 @@ The easiest way is to launch the script in wizard mode:
 
 ```bash
 ./init-docker-db
-database type? [postgres,mssql,mysql] (postgres):
+database type? [postgres,mysql,mssql,mongo] (postgres):
 > your database type here
 database name? (db):
 > your database name here
@@ -29,7 +29,7 @@ docker container name? (apathetic-devotion):
 ```
 
 It will create a database container with set parameters, exposing its port (depending
-on the type, 5432 for postgres, 3306 for MySql, 1433 for MsSql).
+on the type, 5432 for postgres, 3306 for MySql, 1433 for MsSql, 27017 for Mongo).
 
 Alternatively, you can configure any of the parameters and the port by the CLI
 flags:
@@ -41,7 +41,7 @@ Positionals:
 Options:
       --version          Show version number                           [boolean]
   -t, --type             database type
-                                [string] [choices: "postgres", "mssql", "mysql"]
+                        [string] [choices: "postgres", "mysql", "mssql","mongo"]
   -u, --user             database user                                  [string]
   -d, --database         database name                                  [string]
   -p, --password         user's password                                [string]

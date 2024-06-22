@@ -30,12 +30,12 @@ export class DbCreator implements IDbCreator {
 	readonly defaultPassword: string;
 	readonly create: (this: IDbCreator, opts: IDbCreateOptions) => Promise<void>;
 
-	constructor(opts: WithDefaults<IDbCreator, "defaultPassword" | "isPasswordValid">) {
+	constructor(opts: WithDefaults<IDbCreator, "defaultPassword" | "isPasswordValid" | "defaultTag">) {
 		this.name = opts.name;
 		this.port = opts.port;
 		this.defaultUser = opts.defaultUser;
-		this.defaultTag = opts.defaultTag;
-		this.defaultPassword = opts.defaultPassword ?? "123456";
+		this.defaultTag = opts.defaultTag || "latest";
+		this.defaultPassword = opts.defaultPassword || "123456";
 
 		if (opts.isPasswordValid) {
 			this.isPasswordValid = opts.isPasswordValid;
