@@ -1,0 +1,23 @@
+{
+	"name": "init-docker-db",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"compile": "bun build --compile ./index.ts --outfile bin/init-docker-db",
+		"compile-linux": "bun build --compile --target=bun-linux-x64 ./index.ts --outfile bin/init-docker-db",
+		"compile-win": "bun build --compile --target=bun-windows-x64 ./index.ts --outfile bin/init-docker-db.exe",
+		"compile-mac": "bun build --compile --target=bun-darwin-arm64 ./index.ts --outfile bin/init-docker-db.mac.arm64",
+		"compile-all": "bun run compile-linux && bun run compile-win && bun run compile-mac"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/yargs": "^17.0.32"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"boring-name-generator": "^1.0.3",
+		"yargs": "^17.7.2"
+	}
+}
