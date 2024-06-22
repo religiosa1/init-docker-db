@@ -2,6 +2,7 @@
 	"name": "init-docker-db",
 	"module": "index.ts",
 	"type": "module",
+	"version": "0.0.1",
 	"scripts": {
 		"compile": "bun build --compile ./index.ts --outfile bin/init-docker-db",
 		"compile-linux": "bun build --compile --target=bun-linux-x64 ./index.ts --outfile bin/init-docker-db",
