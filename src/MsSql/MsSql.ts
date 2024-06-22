@@ -2,6 +2,7 @@ import { DbCreator, type PasswordValidityTuple } from "../DbCreator";
 import { createVerboseShell } from "../createVerboseShell";
 
 import { MsSqlPwdValidityEnum, msSqlPwdValidityEnumMessage } from "./MsSqlPwdValidityEnum";
+import { escapeId, escapeUser, escapeStr } from "./escape";
 
 const PWD_COMPLEXITY_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/;
 
@@ -50,22 +51,20 @@ export const MsSql = new DbCreator({
 		await pause(20_000);
 
 		vlog("Creating the database");
-		// TODO: escaping of sql commands
 		// TODO: parse the resposnse os SQL server and check for potential errors
-		await sqlcmd(`CREATE DATABASE ${opts.database}`);
+		await sqlcmd(`CREATE DATABASE ${escapeId(opts.database)}`);
 
 		vlog("Creating login");
-		await sqlcmd(`CREATE LOGIN ${opts.user} WITH PASSWORD = '${opts.password}'`);
+		await sqlcmd(`CREATE LOGIN ${escapeUser(opts.user)} WITH PASSWORD = ${escapeStr(opts.password)}`);
 
 		vlog("Creating user");
 		await sqlcmd(
-			`use ${opts.database}
-create user ${opts.user} for login ${opts.user}
-`
+			`use ${escapeId(opts.database)}\n` + //
+				`create user ${escapeUser(opts.user)} for login ${escapeUser(opts.user)}`
 		);
 
 		vlog("Adding required permissions");
-		await sqlcmd(`exec sp_addrolemember '${opts.user}', 'dbowner'`);
+		await sqlcmd(`exec sp_addrolemember ${escapeStr(opts.user)}, 'dbowner'`);
 	},
 });
 
