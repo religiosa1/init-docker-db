@@ -1,5 +1,5 @@
-import { $ } from "bun";
 import { DbCreator } from "./DbCreator";
+import { createVerboseShell } from "./createVerboseShell";
 
 export const Postgres = new DbCreator({
 	name: "postgres",
@@ -7,6 +7,9 @@ export const Postgres = new DbCreator({
 	defaultUser: "postgres",
 	defaultTag: "latest",
 	async create(opts) {
+		const $ = createVerboseShell(opts.verbose);
+
+		// https://hub.docker.com/_/postgres
 		await $`docker run --name ${opts.containerName} \
 -e POSTGRES_PASSWORD=${opts.password} \
 -e POSTGRES_USER=${opts.user} \

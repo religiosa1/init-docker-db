@@ -1,5 +1,5 @@
-import { $ } from "bun";
 import { DbCreator } from "./DbCreator";
+import { createVerboseShell } from "./createVerboseShell";
 
 export const MySql = new DbCreator({
 	name: "mysql",
@@ -7,6 +7,8 @@ export const MySql = new DbCreator({
 	defaultUser: "mysql",
 	defaultTag: "lts",
 	async create(opts) {
+		const $ = createVerboseShell(opts.verbose);
+		// https://hub.docker.com/_/mysql
 		await $`docker run --name ${opts.containerName}\
 -e MYSQL_USER=${opts.password}\
 -e MYSQL_ROOT_PASSWORD=${opts.password}\
