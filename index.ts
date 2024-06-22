@@ -48,6 +48,11 @@ const args = await yargs(hideBin(process.argv))
 		type: "number",
 		description: "TCP port to which database will be mapped to",
 	})
+	.option("tag", {
+		alias: "T",
+		type: "string",
+		description: "docker tag to use with the container",
+	})
 	.option("non-interactive", {
 		alias: "n",
 		type: "boolean",
@@ -105,6 +110,7 @@ async function getOptions(rl: LazyReadline, creator: DbCreator, args: CliArgs): 
 		password: args.password!,
 		containerName: args.name!,
 		port: args.port || creator.port,
+		tag: args.tag || creator.defaultTag,
 		verbose: args.verbose,
 	};
 

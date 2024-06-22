@@ -1,8 +1,8 @@
 # init-docker-db
 
-Simple script to initialize a docker container with a database.
+Simple script to initialize a disposable docker container with a database.
 
-During the development process I want to create disposable database containers for my apps.
+During the development process I want to create database containers for my apps.
 And I can never remember the environment variables and sql commands to initialize them.
 
 This script automates this process, creating a database of specified type, user, password
@@ -46,15 +46,21 @@ Options:
   -d, --database         database name                                  [string]
   -p, --password         user's password                                [string]
   -P, --port             TCP port to which database will be mapped to   [number]
+  -T, --tag              docker tag to use with the container           [string]
   -n, --non-interactive  exit, if some of the required params are missing
                                                                        [boolean]
   -v, --verbose          Run with verbose logging                      [boolean]
   -h, --help             Show help                                     [boolean]
 ```
 
+For MySQL and MsSQL as there is a separate root user with a predefined name
+(root and SA correspondingly), we're using the same password for root access
+and user access. It's a _disposable_ database after all.
+
 ## Installation
 
-Grab an executable from the latest release and drop it somewhere in your PATH.
+The easiest way to install and use this script is to grab an executable
+from the latest release and drop it somewhere in your PATH.
 
 ## Compilation
 

@@ -5,6 +5,7 @@ export const MySql = new DbCreator({
 	name: "mysql",
 	port: 3306,
 	defaultUser: "mysql",
+	defaultTag: "lts",
 	async create(opts) {
 		await $`docker run --name ${opts.containerName}\
 -e MYSQL_USER=${opts.password}\
@@ -12,6 +13,6 @@ export const MySql = new DbCreator({
 -e MYSQL_PASSWORD=${opts.password}\
 -e MYSQL_DATABASE=${opts.database}\
 -p ${this.port}:${opts.port}\
--d mysql:lts`;
+-d mysql:${this.defaultTag}`;
 	},
 });

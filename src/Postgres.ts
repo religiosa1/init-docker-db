@@ -5,6 +5,7 @@ export const Postgres = new DbCreator({
 	name: "postgres",
 	port: 5432,
 	defaultUser: "postgres",
+	defaultTag: "latest",
 	async create(opts) {
 		await $`docker run --name ${opts.containerName} \
 -e POSTGRES_PASSWORD=${opts.password} \
