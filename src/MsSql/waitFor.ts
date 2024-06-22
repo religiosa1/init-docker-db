@@ -6,12 +6,13 @@ interface WaitForOpts {
 	initialDelay?: number;
 	maxDelay?: number;
 	rate?: number;
+	immediate?: boolean;
 }
 
 /** truncated exponential backoff polling, until doesn't throw */
 export async function waitFor(
 	exp: () => MaybePromise<unknown>,
-	{ signal, watchDogMs = 60_000, initialDelay = 200, maxDelay = 5_000, rate = 1.5 }: WaitForOpts = {}
+	{ signal, watchDogMs = 60_000, initialDelay = 200, maxDelay = 5_000, rate = 1.5, immediate }: WaitForOpts = {}
 ): Promise<void> {
 	if (!Number.isFinite(rate) || rate < 1.0 || rate > 10) {
 		throw new RangeError(`Rate for exp backof cannot mesut be in range 1 <= RATE <= 10, got ${rate}`);
@@ -34,6 +35,10 @@ export async function waitFor(
 
 	let currentDelay = initialDelay;
 	let nRuns = 0;
+	if (!immediate) {
+		await pause(currentDelay, { signal });
+		currentDelay = Math.max(currentDelay * rate, maxDelay);
+	}
 	await withTimeout(async () => {
 		for (;;) {
 			++nRuns;
