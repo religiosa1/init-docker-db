@@ -14,6 +14,6 @@ export const Postgres = new DbCreator({
 -e POSTGRES_USER=${opts.user} \
 -e POSTGRES_DB=${opts.database} \
 -p ${this.port}:${opts.port} \
--d postgres:${opts.port}`;
+-d postgres:${opts.tag}`;
 	},
 });
