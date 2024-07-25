@@ -1,3 +1,4 @@
+import { setTimeout as pause } from "node:timers/promises";
 type MaybePromise<T> = T | Promise<T>;
 
 interface WaitForOpts {
@@ -36,7 +37,7 @@ export async function waitFor(
 	let currentDelay = initialDelay;
 	let nRuns = 0;
 	if (!immediate) {
-		await pause(currentDelay, { signal });
+		await pause(currentDelay, undefined, { signal });
 		currentDelay = Math.max(currentDelay * rate, maxDelay);
 	}
 	await withTimeout(async () => {
@@ -49,24 +50,10 @@ export async function waitFor(
 				await exp();
 				break;
 			} catch {}
-			await pause(currentDelay, { signal });
+			await pause(currentDelay, undefined, { signal });
 			currentDelay = Math.max(currentDelay * rate, maxDelay);
 		}
 	}, watchDogMs);
-}
-
-function pause(timeout: number, { signal }: { signal?: AbortSignal } = {}): Promise<void> {
-	return new Promise<void>((res, rej) => {
-		const to = setTimeout(() => {
-			signal?.removeEventListener("abort", handleAbort);
-			res();
-		}, timeout);
-		signal?.addEventListener("abort", handleAbort, { once: true });
-		function handleAbort() {
-			clearTimeout(to);
-			rej(signal?.reason ?? new Error("aborted without a reason"));
-		}
-	});
 }
 
 function withTimeout(cb: () => Promise<unknown>, timeout = 60_000): Promise<void> {
