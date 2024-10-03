@@ -7,10 +7,13 @@ import { LazyReadline, ReadlineDisabledError } from "./src/LazyReadline";
 import { dbTypesList, type DbType, isValidDbType, dbTypes } from "./src/dbTypes";
 import { DbCreator, type IDbCreateOptions } from "./src/DbCreator";
 
+class ValidationError extends Error {}
+
 const args = await yargs(hideBin(process.argv))
-	.usage("Create a database container")
-	.positional("name", {
+	.usage("Create a disposable database docker container")
+	.positional("containerName", {
 		type: "string",
+		array: false,
 		describe: "name of the database container to be created",
 	})
 	.option("type", {
@@ -56,6 +59,11 @@ const args = await yargs(hideBin(process.argv))
 	})
 	.help("h")
 	.alias("h", "help")
+	.example([
+		// Not using $0 yargs interpolation, as it will resole the name to "bun"
+		["init-docker-db", "Run in wizard mode"],
+		["init-docker-db -t mssql -u app_user", "Create a MsSQL database using provided username"],
+	])
 	.parse();
 type CliArgs = typeof args;
 
@@ -70,6 +78,10 @@ async function main(args: CliArgs): Promise<void> {
 		if (e instanceof ReadlineDisabledError) {
 			console.log("Some of required data is missing or incorrect and non-interactive flag is provided, exiting");
 			process.exit(1);
+		}
+		if (e instanceof ValidationError) {
+			console.log("Options validation error:", e.message);
+			process.exit(2);
 		}
 		throw e;
 	}
@@ -100,12 +112,21 @@ async function getOptions(rl: LazyReadline, creator: DbCreator, args: CliArgs): 
 		database: args.database!,
 		user: args.user!,
 		password: args.password!,
-		containerName: args.name!,
+		containerName: args["_"]?.[0]?.toString(),
 		port: args.port || creator.port,
 		tag: args.tag || creator.defaultTag,
 		verbose: args.verbose,
 	};
 
+	// validating existing password first if it's there
+	if (opts.password) {
+		const [valid, message] = creator.isPasswordValid(opts.password);
+		if (!valid) {
+			throw new ValidationError(message || "Provided password does not meet the requirements");
+		}
+	}
+
+	// Filling out the rest of missing data in interactive mode
 	if (!opts.database) {
 		const DATABASE_DEFAULT = "db";
 		opts.database = await rl.question(`database name? (${DATABASE_DEFAULT}): `);
@@ -126,7 +147,7 @@ async function getOptions(rl: LazyReadline, creator: DbCreator, args: CliArgs): 
 			if (valid) {
 				break;
 			}
-			console.log(message || "Password is invalid");
+			console.log(message || "Provided password does not meet the requirements");
 		}
 	}
 	if (!opts.containerName) {

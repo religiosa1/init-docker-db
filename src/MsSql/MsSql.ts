@@ -5,7 +5,25 @@ import { MsSqlPwdValidityEnum, msSqlPwdValidityEnumMessage } from "./MsSqlPwdVal
 import { escapeId, escapeUser, escapeStr } from "./escape";
 import { waitFor } from "./waitFor";
 
-const PWD_COMPLEXITY_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/;
+// https://learn.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver16#password-complexity
+function validatePasswordComplexity(password: string): boolean {
+	let numberOfCharClassesMatched = 0;
+
+	if (/[A-Z]/.test(password)) {
+		numberOfCharClassesMatched++;
+	}
+	if (/[a-z]/.test(password)) {
+		numberOfCharClassesMatched++;
+	}
+	if (/\d/.test(password)) {
+		numberOfCharClassesMatched++;
+	}
+	if (/[!@#$%^&*()_\-+={}\[\]\\|/<>~,.;:'"]/.test(password)) {
+		numberOfCharClassesMatched++;
+	}
+
+	return numberOfCharClassesMatched >= 3;
+}
 
 export const MsSql = new DbCreator({
 	name: "mssql",
@@ -21,7 +39,7 @@ export const MsSql = new DbCreator({
 		if (password.length < 10) {
 			return [false, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.TooShort]];
 		}
-		if (!PWD_COMPLEXITY_REGEX.test(password)) {
+		if (!validatePasswordComplexity(password)) {
 			return [false, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.TooSimple]];
 		}
 		return [true, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.Valid]];
@@ -31,7 +49,6 @@ export const MsSql = new DbCreator({
 		const vlog = (...args: unknown[]) => (opts.verbose ? console.log("verbose:", ...args) : () => {});
 
 		const $ = createVerboseShell(opts.verbose);
-
 		// https://mcr.microsoft.com/product/mssql/server/about
 		const shellOutput = await $`docker run -e ACCEPT_EULA=Y \
 --name ${opts.containerName}\
@@ -51,7 +68,7 @@ export const MsSql = new DbCreator({
 			}
 			let prms = $`docker exec -it ${contId} \
 /opt/mssql-tools/bin/sqlcmd -S localhost \
--U SA -P Password12 -Q ${sql} || exit 1`;
+-U SA -P ${opts.password} -Q ${sql} || exit 1`;
 			if (!opts.verbose) {
 				prms = prms.quiet();
 			}

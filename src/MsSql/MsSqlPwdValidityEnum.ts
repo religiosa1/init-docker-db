@@ -11,5 +11,5 @@ export const msSqlPwdValidityEnumMessage: Record<MsSqlPwdValidityEnum, string> =
 	[MsSqlPwdValidityEnum.TooShort]: "Password is too short (must be at least 10 chars)",
 	[MsSqlPwdValidityEnum.TooSimple]:
 		"Password doesn't meet the complexity requirements " +
-		"(must contain at least one of each: lowercase char, uppercase char, digit)",
+		"(must contain 3 out of 4 char types: lowercase char, uppercase char, digit, nonalphanumeric)",
 };
