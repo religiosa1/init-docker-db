@@ -1,10 +1,11 @@
 import { $, ShellPromise, type ShellExpression } from "bun";
 
 export function createVerboseShell(
-	verbose?: boolean
-): (strings: TemplateStringsArray, ...expressions: ShellExpression[]) => ShellPromise {
+	dryRun: boolean | undefined,
+	verbose: boolean | undefined
+): (strings: TemplateStringsArray, ...expressions: ShellExpression[]) => ShellPromise | void {
 	return function $debug(strings, ...expressions) {
-		if (verbose) {
+		if (dryRun || verbose) {
 			let result = "";
 			for (let i = 0; i < strings.length; i++) {
 				result += strings[i];
@@ -12,8 +13,10 @@ export function createVerboseShell(
 					result += $.escape(String(expressions[i]));
 				}
 			}
-			// console.log("CMD:", result);
+			console.log(result);
 		}
-		return $(strings, ...expressions);
+		if (!dryRun) {
+			return $(strings, ...expressions);
+		}
 	};
 }

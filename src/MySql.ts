@@ -7,7 +7,7 @@ export const MySql = new DbCreator({
 	defaultUser: "mysql",
 	defaultTag: "lts",
 	async create(opts) {
-		const $ = createVerboseShell(opts.verbose);
+		const $ = createVerboseShell(opts.dryRun, opts.verbose);
 		// https://hub.docker.com/_/mysql
 		await $`docker run --name ${opts.containerName}\
 -e MYSQL_USER=${opts.password}\

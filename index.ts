@@ -53,6 +53,11 @@ const args = await yargs(hideBin(process.argv))
 		type: "boolean",
 		description: "exit, if some of the required params are missing",
 	})
+	.option("dry", {
+		alias: "D",
+		type: "boolean",
+		description: "dry run, printing docker command to stdout, without actually running it"
+	})
 	.option("verbose", {
 		alias: "v",
 		type: "boolean",
@@ -76,6 +81,9 @@ async function main(args: CliArgs): Promise<void> {
 	try {
 		var creator = await getCreator(rl, args.type);
 		var options = await getOptions(rl, creator, args);
+		if (rl.hadOutput) {
+			console.log(); // if we printed anything on console, using empty string as a delimiter
+		}
 	} catch (e) {
 		if (e instanceof ReadlineDisabledError) {
 			console.log("Some of required data is missing or incorrect and non-interactive flag is provided, exiting");
@@ -88,7 +96,9 @@ async function main(args: CliArgs): Promise<void> {
 		throw e;
 	}
 	await creator.create(options);
-	console.log("Done");
+	if (!args.dry) {
+		console.log("Done");
+	}
 }
 
 async function getCreator(rl: LazyReadline, type: string | undefined): Promise<DbCreator> {
@@ -118,6 +128,7 @@ async function getOptions(rl: LazyReadline, creator: DbCreator, args: CliArgs): 
 		port: args.port || creator.port,
 		tag: args.tag || creator.defaultTag,
 		verbose: args.verbose,
+		dryRun: args.dry,
 	};
 
 	// validating existing password first if it's there

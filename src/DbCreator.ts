@@ -1,4 +1,5 @@
 export interface IDbCreateOptions {
+	dryRun?: boolean;
 	containerName: string;
 	database: string;
 	user: string;

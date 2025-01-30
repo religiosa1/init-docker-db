@@ -1,11 +1,13 @@
 import readline from "node:readline/promises";
 
 export class LazyReadline implements Disposable {
+	public hadOutput = false;
 	private rl: readline.Interface | undefined;
 
 	constructor(private disabled: boolean) {}
 
 	question(query: string): Promise<string> {
+		this.hadOutput = true;
 		return this.get().question(query);
 	}
 

@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.2.1] - 2025.01.30
+
 ### Added
 
 - CLI version flag support
-- TODO: intuitive error messages on no docker in path or docker-client not run
+- Dry-run functionality
+
+### Changed
+
+- Bun version bumped to 1.2.0 with lockfile changed to text version
 
 ## [0.2.0] - 2024.10.03
 

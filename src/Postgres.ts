@@ -6,7 +6,7 @@ export const Postgres = new DbCreator({
 	port: 5432,
 	defaultUser: "postgres",
 	async create(opts) {
-		const $ = createVerboseShell(opts.verbose);
+		const $ = createVerboseShell(opts.dryRun, opts.verbose);
 
 		// https://hub.docker.com/_/postgres
 		await $`docker run --name ${opts.containerName} \

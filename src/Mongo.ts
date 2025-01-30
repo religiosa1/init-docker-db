@@ -6,7 +6,7 @@ export const Mongo = new DbCreator({
 	port: 27017,
 	defaultUser: "mongo",
 	async create(opts) {
-		const $ = createVerboseShell(opts.verbose);
+		const $ = createVerboseShell(opts.dryRun, opts.verbose);
 
 		// https://hub.docker.com/_/mongo
 		await $`docker run --name ${opts.containerName} \
