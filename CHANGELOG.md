@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- CLI version flag support
+- TODO: intuitive error messages on no docker in path or docker-client not run
+
 ## [0.2.0] - 2024.10.03
 
 ### Added

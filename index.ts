@@ -1,5 +1,6 @@
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
+import { version } from "./package.json" with { type: "json" };
 
 import generateName from "boring-name-generator";
 
@@ -58,6 +59,7 @@ const args = await yargs(hideBin(process.argv))
 		description: "Run with verbose logging",
 	})
 	.help("h")
+	.version(version)
 	.alias("h", "help")
 	.example([
 		// Not using $0 yargs interpolation, as it will resole the name to "bun"
