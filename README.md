@@ -42,9 +42,8 @@ Positionals:
   containerName  name of the database container to be created           [string]
 
 Options:
-      --version          Show version number                           [boolean]
   -t, --type             database type
-                        [string] [choices: "postgres", "mysql", "mssql","mongo"]
+                       [string] [choices: "postgres", "mysql", "mssql", "mongo"]
   -u, --user             database user                                  [string]
   -d, --database         database name                                  [string]
   -p, --password         user's password                                [string]
@@ -52,8 +51,16 @@ Options:
   -T, --tag              docker tag to use with the container           [string]
   -n, --non-interactive  exit, if some of the required params are missing
                                                                        [boolean]
+  -D, --dry              dry run, printing docker command to stdout, without
+                         actually running it                           [boolean]
   -v, --verbose          Run with verbose logging                      [boolean]
   -h, --help             Show help                                     [boolean]
+      --version          Show version number                           [boolean]
+
+Examples:
+  init-docker-db                       Run in wizard mode
+  init-docker-db -t mssql -u app_user  Create a MsSQL database using provided
+                                       username
 ```
 
 For MySQL and MsSQL as there is a separate root user with a predefined name
