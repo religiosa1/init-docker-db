@@ -1,5 +1,6 @@
+import type { VerboseShell } from "./createVerboseShell";
+
 export interface IDbCreateOptions {
-	dryRun?: boolean;
 	containerName: string;
 	database: string;
 	user: string;
@@ -7,6 +8,7 @@ export interface IDbCreateOptions {
 	port: number;
 	tag: string;
 	verbose?: boolean;
+	dryRun?: boolean;
 }
 
 export type PasswordValidityTuple = [status: true, message?: string] | [status: false, message: string];
@@ -17,7 +19,7 @@ interface IDbCreator {
 	defaultUser: string;
 	defaultTag: string;
 	defaultPassword: string;
-	create: (this: IDbCreator, opts: IDbCreateOptions) => Promise<void>;
+	create: (this: IDbCreator, $: VerboseShell, opts: IDbCreateOptions) => Promise<void>;
 	isPasswordValid(password: string): PasswordValidityTuple;
 }
 
@@ -29,7 +31,7 @@ export class DbCreator implements IDbCreator {
 	readonly defaultUser: string;
 	readonly defaultTag: string;
 	readonly defaultPassword: string;
-	readonly create: (this: IDbCreator, opts: IDbCreateOptions) => Promise<void>;
+	readonly create: (this: IDbCreator, $: VerboseShell, opts: IDbCreateOptions) => Promise<void>;
 
 	constructor(opts: WithDefaults<IDbCreator, "defaultPassword" | "isPasswordValid" | "defaultTag">) {
 		this.name = opts.name;
@@ -42,11 +44,12 @@ export class DbCreator implements IDbCreator {
 			this.isPasswordValid = opts.isPasswordValid;
 		}
 
-		this.create = function (args) {
+		// Decorating opts.create function.
+		this.create = function ($, args) {
 			if (args.verbose) {
 				console.log(this.name, "create", args);
 			}
-			return opts.create.call(this, args);
+			return opts.create.call(this, $, args);
 		};
 	}
 

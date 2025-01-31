@@ -1,5 +1,4 @@
 import { DbCreator, type PasswordValidityTuple } from "../DbCreator";
-import { createVerboseShell } from "../createVerboseShell";
 
 import { MsSqlPwdValidityEnum, msSqlPwdValidityEnumMessage } from "./MsSqlPwdValidityEnum";
 import { escapeId, escapeUser, escapeStr } from "./escape";
@@ -45,10 +44,9 @@ export const MsSql = new DbCreator({
 		return [true, msSqlPwdValidityEnumMessage[MsSqlPwdValidityEnum.Valid]];
 	},
 
-	async create(opts) {
+	async create($, opts) {
 		const vlog = (...args: unknown[]) => (opts.verbose ? console.log("verbose:", ...args) : () => {});
 
-		const $ = createVerboseShell(opts.verbose);
 		// https://mcr.microsoft.com/product/mssql/server/about
 		const shellOutput = await $`docker run -e ACCEPT_EULA=Y \
 --name ${opts.containerName}\
@@ -56,7 +54,7 @@ export const MsSql = new DbCreator({
 -e MSSQL_SA_PASSWORD=${opts.password}\
 -p ${this.port}:${opts.port}\
 -d mcr.microsoft.com/mssql/server:${opts.tag}`;
-		const contId = shellOutput.text().trim();
+		const contId = shellOutput?.text().trim();
 
 		// TODO: parse the resposnse os SQL server and check for potential errors
 		const sqlcmd = async (sql: string, db?: string) => {
@@ -69,8 +67,8 @@ export const MsSql = new DbCreator({
 			let prms = $`docker exec -it ${contId} \
 /opt/mssql-tools/bin/sqlcmd -S localhost \
 -U SA -P ${opts.password} -Q ${sql} || exit 1`;
-			if (!opts.verbose) {
-				prms = prms.quiet();
+			if (!opts.verbose && !opts.dryRun) {
+				prms = prms?.quiet();
 			}
 			return prms;
 		};

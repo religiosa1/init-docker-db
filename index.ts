@@ -7,6 +7,7 @@ import generateName from "boring-name-generator";
 import { LazyReadline, ReadlineDisabledError } from "./src/LazyReadline";
 import { dbTypesList, type DbType, isValidDbType, dbTypes } from "./src/dbTypes";
 import { DbCreator, type IDbCreateOptions } from "./src/DbCreator";
+import { createVerboseShell } from "./src/createVerboseShell";
 
 class ValidationError extends Error {}
 
@@ -95,7 +96,8 @@ async function main(args: CliArgs): Promise<void> {
 		}
 		throw e;
 	}
-	await creator.create(options);
+	const shell = createVerboseShell(args.dry, options.verbose);
+	await creator.create(shell, options);
 	if (!args.dry) {
 		console.log("Done");
 	}

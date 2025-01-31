@@ -1,13 +1,11 @@
 import { DbCreator } from "./DbCreator";
-import { createVerboseShell } from "./createVerboseShell";
 
 export const MySql = new DbCreator({
 	name: "mysql",
 	port: 3306,
 	defaultUser: "mysql",
 	defaultTag: "lts",
-	async create(opts) {
-		const $ = createVerboseShell(opts.dryRun, opts.verbose);
+	async create($, opts) {
 		// https://hub.docker.com/_/mysql
 		await $`docker run --name ${opts.containerName}\
 -e MYSQL_USER=${opts.password}\
