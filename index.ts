@@ -52,7 +52,7 @@ const args = await yargs(hideBin(process.argv))
 	.option("non-interactive", {
 		alias: "n",
 		type: "boolean",
-		description: "exit, if some of the required params are missing",
+		description: "exit if any required parameters are missing",
 	})
 	.option("dry", {
 		alias: "D",
@@ -70,6 +70,7 @@ const args = await yargs(hideBin(process.argv))
 	.example([
 		// Not using $0 yargs interpolation, as it will resole the name to "bun"
 		["init-docker-db", "Run in wizard mode"],
+		["init-docker-db --dry", "Dry-run in wizard mode"],
 		["init-docker-db -t mssql -u app_user", "Create a MsSQL database using provided username"],
 	])
 	.parse();
