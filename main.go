@@ -54,10 +54,17 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	if rl.hadOutput {
+		fmt.Println("") // if we printed anything on console, using empty string as a delimiter
+	}
 	err = creator.Create(nil, options)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
+	}
+	if !CLI.Dry {
+		fmt.Println("Done")
 	}
 }
 
