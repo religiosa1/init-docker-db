@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+- MySQL non-root username fix (previously matched to password)
+
 ### Changed
 
 - Turn on minification of the bunled code

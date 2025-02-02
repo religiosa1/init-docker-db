@@ -8,7 +8,7 @@ export const MySql = new DbCreator({
 	async create($, opts) {
 		// https://hub.docker.com/_/mysql
 		await $`docker run --name ${opts.containerName}\
--e MYSQL_USER=${opts.password}\
+-e MYSQL_USER=${opts.user}\
 -e MYSQL_ROOT_PASSWORD=${opts.password}\
 -e MYSQL_PASSWORD=${opts.password}\
 -e MYSQL_DATABASE=${opts.database}\
