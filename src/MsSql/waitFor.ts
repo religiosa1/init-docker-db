@@ -16,7 +16,7 @@ export async function waitFor(
 	{ signal, watchDogMs = 60_000, initialDelay = 200, maxDelay = 5_000, rate = 1.5, immediate }: WaitForOpts = {}
 ): Promise<void> {
 	if (!Number.isFinite(rate) || rate < 1.0 || rate > 10) {
-		throw new RangeError(`Rate for exp backof cannot mesut be in range 1 <= RATE <= 10, got ${rate}`);
+		throw new RangeError(`Rate for exp backof must be in range 1 <= RATE <= 10, got ${rate}`);
 	}
 	if (!Number.isInteger(initialDelay) || initialDelay < 1) {
 		throw new TypeError(`Initial delay value must be a positive integer, got ${initialDelay}`);
@@ -24,7 +24,7 @@ export async function waitFor(
 	if (!Number.isInteger(maxDelay) || maxDelay < initialDelay) {
 		throw new TypeError(
 			"Max delay value must be a positive integer bigger than initialDelay, " +
-				`got ${maxDelay} (initialDelat = ${initialDelay})`
+				`got ${maxDelay} (initialDelay = ${initialDelay})`
 		);
 	}
 	if (!Number.isInteger(watchDogMs) || watchDogMs < maxDelay) {

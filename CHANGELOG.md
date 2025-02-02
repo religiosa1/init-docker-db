@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Minor `--help` output changes
+- Turn on minification of the bunled code
+- Minor `--help` and error messages output changes
 
 ## [0.2.2] - 2025.01.31
 
