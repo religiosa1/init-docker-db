@@ -10,7 +10,7 @@ type Creator struct{}
 
 const port uint16 = 5432
 
-func (pgs Creator) GetDefaultSettings() dbCreator.DefaultOpts {
+func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	return dbCreator.DefaultOpts{
 		Port:      port,
 		User:      "postgres",

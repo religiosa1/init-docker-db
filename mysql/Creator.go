@@ -1,4 +1,4 @@
-package main
+package mysql
 
 import (
 	"fmt"
@@ -6,11 +6,11 @@ import (
 	"github.com/religiosa1/init-docker-db/dbCreator"
 )
 
-type MySqlCreator struct{}
+type Creator struct{}
 
 const port uint16 = 3306
 
-func (pgs MySqlCreator) GetDefaultSettings() dbCreator.DefaultOpts {
+func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	return dbCreator.DefaultOpts{
 		Port:      port,
 		User:      "mysql",
@@ -19,7 +19,7 @@ func (pgs MySqlCreator) GetDefaultSettings() dbCreator.DefaultOpts {
 	}
 }
 
-func (pgs MySqlCreator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
+func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
 	// https://hub.docker.com/_/mysql
 	return shell("docker", "run", "--name", opts.ContainerName,
 		"-e", dbCreator.DockerEnv("MYSQL_USER", opts.User),
@@ -31,6 +31,6 @@ func (pgs MySqlCreator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptio
 	)
 }
 
-func (pgs MySqlCreator) IsPasswordValid(password string) error {
+func (pgs Creator) IsPasswordValid(password string) error {
 	return nil
 }

@@ -1,4 +1,4 @@
-package main
+package mongo
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ type Creator struct{}
 
 const port uint16 = 27017
 
-func (pgs Creator) GetDefaultSettings() dbCreator.DefaultOpts {
+func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	return dbCreator.DefaultOpts{
 		Port:      port,
 		User:      "mongo",

@@ -1,6 +1,6 @@
 package dbCreator
 
-type CreateOptions = struct {
+type CreateOptions struct {
 	ContainerName string
 	Database      string
 	User          string
@@ -11,7 +11,7 @@ type CreateOptions = struct {
 	DryRun        bool
 }
 
-type DefaultOpts = struct {
+type DefaultOpts struct {
 	User      string
 	DockerTag string
 	Port      uint16
