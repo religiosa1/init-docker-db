@@ -58,7 +58,8 @@ func main() {
 	if rl.hadOutput {
 		fmt.Println("") // if we printed anything on console, using empty string as a delimiter
 	}
-	err = creator.Create(nil, options)
+
+	err = creator.Create(dbCreator.NewShell(options.DryRun, options.Verbose), options)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
@@ -113,9 +114,19 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 		Verbose:       args.Verbose,
 		DryRun:        args.Dry,
 	}
+	// Setting non-interactive defaults
+	if opts.Port == 0 {
+		opts.Port = defaultOpts.Port
+	}
+	if opts.Tag == "" {
+		opts.Tag = defaultOpts.DockerTag
+	}
 
 	// validating existing password first if it's there
 	if opts.Password != "" {
+		if defaultOpts.Password != "" {
+			opts.Password = defaultOpts.Password
+		}
 		err := creator.IsPasswordValid(opts.Password)
 		if err != nil {
 			return opts, fmt.Errorf("provided password does not meet the requirements: %w", err)

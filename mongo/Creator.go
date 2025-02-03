@@ -21,7 +21,7 @@ func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 
 func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
 	// https://hub.docker.com/_/mongo
-	return shell("docker", "run", "--name", opts.ContainerName,
+	return shell.Run("docker", "run", "--name", opts.ContainerName,
 		"-e", dbCreator.DockerEnv("MONGO_INITDB_ROOT_PASSWORD", opts.Password),
 		"-e", dbCreator.DockerEnv("MONGO_INITDB_ROOT_USERNAME", opts.User),
 		"-e", dbCreator.DockerEnv("MONGO_INITDB_DATABASE", opts.Database),

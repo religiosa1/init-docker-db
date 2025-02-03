@@ -21,7 +21,7 @@ func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 
 func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
 	// https://hub.docker.com/_/postgres
-	return shell("docker", "run", "--name", opts.ContainerName,
+	return shell.Run("docker", "run", "--name", opts.ContainerName,
 		"-e", dbCreator.DockerEnv("POSTGRES_PASSWORD", opts.Password),
 		"-e", dbCreator.DockerEnv("POSTGRES_USER", opts.User),
 		"-e", dbCreator.DockerEnv("POSTGRES_DB", opts.Database),
