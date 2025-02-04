@@ -24,6 +24,35 @@ func NewShell(dryRun bool, verbose bool) Shell {
 	}
 }
 
+func (sh Shell) RunWithOutput(name string, args ...string) (string, error) {
+	if sh.dryRun || sh.verbose {
+		fmt.Println(makeShellCmdString(name, args...))
+	}
+	if sh.dryRun {
+		return "", nil
+	}
+	panic("TODO")
+}
+
+/*
+Run a child process, printing its outputs to Stdout/Stderr only in the verbose
+mode
+*/
+func (sh Shell) RunSilent(name string, args ...string) error {
+	if sh.dryRun || sh.verbose {
+		fmt.Println(makeShellCmdString(name, args...))
+	}
+	if sh.dryRun {
+		return nil
+	}
+	cmd := exec.Command(name, args...)
+	if !sh.verbose {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
+	return cmd.Run()
+}
+
 func (sh Shell) Run(name string, args ...string) error {
 	if sh.dryRun || sh.verbose {
 		fmt.Println(makeShellCmdString(name, args...))

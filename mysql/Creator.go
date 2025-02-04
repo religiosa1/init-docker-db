@@ -10,7 +10,7 @@ type Creator struct{}
 
 const port uint16 = 3306
 
-func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
+func (c Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	return dbCreator.DefaultOpts{
 		Port:      port,
 		User:      "mysql",
@@ -19,7 +19,7 @@ func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	}
 }
 
-func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
+func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
 	// https://hub.docker.com/_/mysql
 	return shell.Run("docker", "run", "--name", opts.ContainerName,
 		"-e", dbCreator.DockerEnv("MYSQL_USER", opts.User),
@@ -31,6 +31,6 @@ func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) e
 	)
 }
 
-func (pgs Creator) IsPasswordValid(password string) error {
+func (c Creator) IsPasswordValid(password string) error {
 	return nil
 }

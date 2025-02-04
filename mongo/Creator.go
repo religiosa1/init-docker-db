@@ -10,7 +10,7 @@ type Creator struct{}
 
 const port uint16 = 27017
 
-func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
+func (c Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	return dbCreator.DefaultOpts{
 		Port:      port,
 		User:      "mongo",
@@ -19,7 +19,7 @@ func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	}
 }
 
-func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
+func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
 	// https://hub.docker.com/_/mongo
 	return shell.Run("docker", "run", "--name", opts.ContainerName,
 		"-e", dbCreator.DockerEnv("MONGO_INITDB_ROOT_PASSWORD", opts.Password),
@@ -30,6 +30,6 @@ func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) e
 	)
 }
 
-func (pgs Creator) IsPasswordValid(password string) error {
+func (c Creator) IsPasswordValid(password string) error {
 	return nil
 }
