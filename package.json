@@ -2,7 +2,7 @@
 	"name": "init-docker-db",
 	"module": "index.ts",
 	"type": "module",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"scripts": {
 		"test": "bun test",
 		"start": "bun index.ts",

@@ -38,7 +38,7 @@ export async function waitFor(
 	let nRuns = 0;
 	if (!immediate) {
 		await pause(currentDelay, undefined, { signal });
-		currentDelay = Math.max(currentDelay * rate, maxDelay);
+		currentDelay = Math.min(currentDelay * rate, maxDelay);
 	}
 	await withTimeout(async () => {
 		for (;;) {
@@ -51,7 +51,7 @@ export async function waitFor(
 				break;
 			} catch {}
 			await pause(currentDelay, undefined, { signal });
-			currentDelay = Math.max(currentDelay * rate, maxDelay);
+			currentDelay = Math.min(currentDelay * rate, maxDelay);
 		}
 	}, watchDogMs);
 }

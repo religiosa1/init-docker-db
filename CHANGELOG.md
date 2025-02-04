@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- faster initial wait and max delay clamping in exponential back-off waiting
+  for MsSQL DB to be up and running prior to running SQL commands
 - MySQL non-root username fix (previously matched to password)
 
 ### Changed
