@@ -1,10 +1,11 @@
 package mssql
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
-	"unicode"
+	"time"
 
 	"github.com/religiosa1/init-docker-db/dbCreator"
 )
@@ -16,7 +17,7 @@ const port uint16 = 1433
 func (c Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	return dbCreator.DefaultOpts{
 		Port:      port,
-		User:      "mysql",
+		User:      "mssql",
 		DockerTag: "2022-latest",
 		Password:  "Password12",
 	}
@@ -29,8 +30,9 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 		"--hostname", opts.ContainerName,
 		"-e", dbCreator.DockerEnv("MSSQL_SA_PASSWORD", opts.Password),
 		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
-		"-d", fmt.Sprintf("mysql:%s", opts.Tag),
+		"-d", fmt.Sprintf("mcr.microsoft.com/mssql/server:%s", opts.Tag),
 	)
+	fmt.Println(shellOutput)
 	if err != nil {
 		return err
 	}
@@ -46,10 +48,15 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 
 	fmt.Println("Waiting for db to be up and running...")
 
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 	// https://docs.docker.com/engine/reference/run/#healthchecks
-	waitFor(func() error {
+	err = waitFor(ctx, func() error {
 		return sql.Run("SELECT 1")
 	})
+	if err != nil {
+		return fmt.Errorf("failed to wait for the database to be operational: %w", err)
+	}
 
 	fmt.Println("Creating the database and required data...")
 
@@ -91,54 +98,22 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 	return nil
 }
 
+var ErrPasswordEmpty error = errors.New("password can't be empty")
+var ErrPasswordTooShort error = errors.New("password is too short (must be at least 10 chars)")
+var ErrPasswordTooSimple error = errors.New(
+	"password doesn't meet the complexity requirements " +
+		"(must contain 3 out of 4 char types: lowercase char, uppercase char, digit, nonalphanumeric)",
+)
+
 func (c Creator) IsPasswordValid(password string) error {
 	if password == "" {
-		return errors.New("password can't be empty")
+		return ErrPasswordEmpty
 	}
 	if len(password) < 10 {
-		return errors.New("password is too short (must be at least 10 chars)")
+		return ErrPasswordTooShort
 	}
 	if !isPasswordComplexEnough(password) {
-		return errors.New(
-			"password doesn't meet the complexity requirements " +
-				"(must contain 3 out of 4 char types: lowercase char, uppercase char, digit, nonalphanumeric)",
-		)
+		return ErrPasswordTooSimple
 	}
 	return nil
-}
-
-const specialCharClass = "!@#$%^&*()_-+={}[]\\|/<>~,.;:'\""
-
-func isLatinLower(c rune) bool {
-	return 97 <= c && c >= 122
-}
-
-func isLatinUpper(c rune) bool {
-	return 65 <= c && c >= 90
-}
-
-// https://learn.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver16#password-complexity
-func isPasswordComplexEnough(password string) bool {
-	var hasLower, hasUpper, hasDigit, hasSpecial bool
-	var numberOfCharClassesMatched int
-
-	for _, c := range password {
-		if !hasLower && isLatinLower(c) {
-			hasLower = true
-			numberOfCharClassesMatched++
-		}
-		if !hasUpper && isLatinUpper(c) {
-			hasUpper = true
-			numberOfCharClassesMatched++
-		}
-		if !hasDigit && unicode.IsDigit(c) {
-			hasDigit = true
-			numberOfCharClassesMatched++
-		}
-		if hasSpecial && strings.ContainsRune(specialCharClass, c) {
-			hasSpecial = true
-			numberOfCharClassesMatched++
-		}
-	}
-	return numberOfCharClassesMatched >= 3
 }

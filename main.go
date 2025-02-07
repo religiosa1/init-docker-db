@@ -10,6 +10,7 @@ import (
 	"github.com/religiosa1/init-docker-db/RandomName"
 	"github.com/religiosa1/init-docker-db/dbCreator"
 	"github.com/religiosa1/init-docker-db/mongo"
+	"github.com/religiosa1/init-docker-db/mssql"
 	"github.com/religiosa1/init-docker-db/mysql"
 	"github.com/religiosa1/init-docker-db/postgres"
 )
@@ -94,6 +95,8 @@ func makeCreatorById(dbType string) (dbCreator.DbCreator, error) {
 	switch dbType {
 	case "postgres":
 		return postgres.Creator{}, nil
+	case "mssql":
+		return mssql.Creator{}, nil
 	case "mysql":
 		return mysql.Creator{}, nil
 	case "mongo":

@@ -31,7 +31,9 @@ func (sh Shell) RunWithOutput(name string, args ...string) (string, error) {
 	if sh.dryRun {
 		return "", nil
 	}
-	panic("TODO")
+	cmd := exec.Command(name, args...)
+	out, err := cmd.CombinedOutput()
+	return string(out), err
 }
 
 /*
