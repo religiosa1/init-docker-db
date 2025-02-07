@@ -1,6 +1,9 @@
 import { $, ShellPromise, type ShellExpression } from "bun";
 
-export type VerboseShell = (strings: TemplateStringsArray, ...expressions: ShellExpression[]) => ShellPromise | void;
+export type VerboseShell = (
+	strings: TemplateStringsArray,
+	...expressions: ShellExpression[]
+) => ShellPromise | undefined;
 
 export function createVerboseShell(dryRun: boolean | undefined, verbose: boolean | undefined): VerboseShell {
 	return function $debug(strings, ...expressions) {

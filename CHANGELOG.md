@@ -7,14 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- MsSQL handling of potential SQL errors during container's setup.
+
 ### Fixed
 
-- faster initial wait and max delay clamping in exponential back-off waiting
-  for MsSQL DB to be up and running prior to running SQL commands
+- max delay clamping in exponential back-off waiting for MsSQL DB to be up and running prior to running SQL commands
 - MySQL non-root username fix (previously matched to password)
 
 ### Changed
 
+- MsSQL health check switched from `SELECT 1` to `SELECT SERVERPROPERTY('ProductVersion')`
+- MsSQL add owner switched from deprecated `sp_addrolemember` to `ALTER ROLE db_owner`
 - Turn on minification of the bunled code
 - Minor `--help` and error messages output changes
 
