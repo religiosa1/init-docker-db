@@ -50,10 +50,12 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
-	// https://docs.docker.com/engine/reference/run/#healthchecks
-	err = waitFor(ctx, func() error {
-		return sql.Run("SELECT 1")
-	})
+
+	// predelaying waiting for 1 seconds, as there's no way MsSQL can launch that
+	// fast, and connectivity timeouts take quite some time to resolve.
+	waitOpts := WaitForOpts{PreDelay: 1000}
+	// TODO investigate usage of `"SELECT SERVERPROPERTY('ProductVersion')"` instead
+	err = waitFor(ctx, func() error { return sql.Run("SELECT 1") }, waitOpts)
 	if err != nil {
 		return fmt.Errorf("failed to wait for the database to be operational: %w", err)
 	}
@@ -90,6 +92,8 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 	}
 
 	// To check available roles: Select	[name] From sysusers Where issqlrole = 1
+
+	// TODO: sp_addrolemember is deprecated? use `"ALTER ROLE db_owner ADD MEMBER %s"` instead
 	v.Log("Adding required permissions")
 	err = sql.RunInDb(fmt.Sprintf("exec sp_addrolemember 'db_owner', %s", escapeStr(opts.User)))
 	if err != nil {

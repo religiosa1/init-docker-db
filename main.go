@@ -157,23 +157,20 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 		}
 		opts.User = val
 	}
-	if opts.Password == "" {
+	for opts.Password == "" {
 		if args.NonInteractive {
 			return opts, fmt.Errorf("password is requied in non-interactive mode, but not provided")
 		}
-		for {
-			val, err := rl.Question("database password?", defaultOpts.Password)
-			if err != nil {
-				return opts, nil
-			}
-			err = creator.IsPasswordValid(val)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-
-			break
+		val, err := rl.Question("database password?", defaultOpts.Password)
+		if err != nil {
+			return opts, nil
 		}
+		err = creator.IsPasswordValid(val)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		opts.Password = val
 	}
 	if opts.ContainerName == "" {
 		val, err := rl.Question("docker container name?", RandomName.Generate())
