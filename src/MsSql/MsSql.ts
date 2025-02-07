@@ -55,17 +55,18 @@ export const MsSql = new DbCreator({
 -e MSSQL_SA_PASSWORD=${opts.password}\
 -p ${this.port}:${opts.port}\
 -d mcr.microsoft.com/mssql/server:${opts.tag}`;
-		const contId = shellOutput?.text().trim();
+		const contId = !opts.dryRun ? shellOutput?.text().trim() : "<CONTAINER_ID>";
 		if (!contId) {
 			throw new Error("Unable to find id of the created container");
 		}
 		const sql = new SqlInContainerRunner(contId, $, opts);
 
-		console.log("Waiting for db to be up and running...");
-		// https://docs.docker.com/engine/reference/run/#healthchecks
-		await waitFor(() => sql.run("SELECT SERVERPROPERTY('ProductVersion')"), { preDelay: 1000 });
-
-		console.log("Creating the database and required data...");
+		if (!opts.dryRun) {
+			console.log("Waiting for db to be up and running...");
+			// https://docs.docker.com/engine/reference/run/#healthchecks
+			await waitFor(() => sql.run("SELECT SERVERPROPERTY('ProductVersion')"), { preDelay: 1000 });
+			console.log("Creating the database and required data...");
+		}
 		await sql.run(`CREATE DATABASE ${escapeId(opts.database)}`);
 
 		vlog("Creating login");
