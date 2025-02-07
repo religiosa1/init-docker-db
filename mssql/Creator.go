@@ -54,8 +54,8 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 	// predelaying waiting for 1 seconds, as there's no way MsSQL can launch that
 	// fast, and connectivity timeouts take quite some time to resolve.
 	waitOpts := WaitForOpts{PreDelay: 1000}
-	// TODO investigate usage of `"SELECT SERVERPROPERTY('ProductVersion')"` instead
-	err = waitFor(ctx, func() error { return sql.Run("SELECT 1") }, waitOpts)
+
+	err = waitFor(ctx, func() error { return sql.Run("SELECT SERVERPROPERTY('ProductVersion')") }, waitOpts)
 	if err != nil {
 		return fmt.Errorf("failed to wait for the database to be operational: %w", err)
 	}
@@ -92,10 +92,8 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 	}
 
 	// To check available roles: Select	[name] From sysusers Where issqlrole = 1
-
-	// TODO: sp_addrolemember is deprecated? use `"ALTER ROLE db_owner ADD MEMBER %s"` instead
 	v.Log("Adding required permissions")
-	err = sql.RunInDb(fmt.Sprintf("exec sp_addrolemember 'db_owner', %s", escapeStr(opts.User)))
+	err = sql.RunInDb(fmt.Sprintf("ALTER ROLE db_owner ADD MEMBER %s", escapedUser))
 	if err != nil {
 		return err
 	}

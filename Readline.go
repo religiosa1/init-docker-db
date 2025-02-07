@@ -21,10 +21,7 @@ func NewReadline() Readline {
 
 func (rl *Readline) Question(question string, defaultAnswer string) (string, error) {
 	rl.hadOutput = true
-	if defaultAnswer == "" {
-		defaultAnswer = "NONE"
-	}
-	fmt.Printf("%s (%s):\n", question, defaultAnswer)
+	fmt.Printf("%s (%s): ", question, defaultAnswer)
 	answer, err := rl.reader.ReadString('\n')
 	if err != nil {
 		return "", err

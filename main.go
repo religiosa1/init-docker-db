@@ -127,9 +127,6 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 
 	// validating existing password first if it's there
 	if opts.Password != "" {
-		if defaultOpts.Password != "" {
-			opts.Password = defaultOpts.Password
-		}
 		err := creator.IsPasswordValid(opts.Password)
 		if err != nil {
 			return opts, fmt.Errorf("provided password does not meet the requirements: %w", err)
@@ -157,20 +154,23 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 		}
 		opts.User = val
 	}
-	for opts.Password == "" {
-		if args.NonInteractive {
-			return opts, fmt.Errorf("password is requied in non-interactive mode, but not provided")
+	if opts.Password == "" {
+		for {
+			if args.NonInteractive {
+				return opts, fmt.Errorf("password is requied in non-interactive mode, but not provided")
+			}
+			val, err := rl.Question("database password?", defaultOpts.Password)
+			if err != nil {
+				return opts, nil
+			}
+			err = creator.IsPasswordValid(val)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			opts.Password = val
+			break
 		}
-		val, err := rl.Question("database password?", defaultOpts.Password)
-		if err != nil {
-			return opts, nil
-		}
-		err = creator.IsPasswordValid(val)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		opts.Password = val
 	}
 	if opts.ContainerName == "" {
 		val, err := rl.Question("docker container name?", RandomName.Generate())
