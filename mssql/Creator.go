@@ -107,7 +107,7 @@ var ErrPasswordTooSimple error = errors.New(
 		"(must contain 3 out of 4 char types: lowercase char, uppercase char, digit, nonalphanumeric)",
 )
 
-func (c Creator) IsPasswordValid(password string) error {
+func (c Creator) ValidatePassword(password string) error {
 	if password == "" {
 		return ErrPasswordEmpty
 	}

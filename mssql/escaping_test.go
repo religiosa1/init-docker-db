@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestEscapeId(t *testing.T) {
+func Test_escapeId(t *testing.T) {
 	bracketsValues := [...]struct {
 		input  string
 		output string
@@ -57,7 +57,7 @@ func TestEscapeId(t *testing.T) {
 
 }
 
-func TestEscapeUsers(t *testing.T) {
+func Test_escapeUser(t *testing.T) {
 	t.Run("throws on empty strings", func(t *testing.T) {
 		val, err := escapeUser("")
 		if val != "" || err == nil {
@@ -93,14 +93,14 @@ func TestEscapeUsers(t *testing.T) {
 		}
 	})
 
-	t.Run("", func(t *testing.T) {
+	t.Run("escapes user name in the same way as identifier", func(t *testing.T) {
 		values := [...]string{
 			"!asd",
 			"_$#.@-",
 			"as.d",
 		}
 		for _, value := range values {
-			t.Run("escapes user name in the same way as identifier; value: "+value, func(t *testing.T) {
+			t.Run("value: "+value, func(t *testing.T) {
 				user, err := escapeUser(value)
 				if err != nil {
 					t.Error(err)
@@ -117,7 +117,7 @@ func TestEscapeUsers(t *testing.T) {
 	})
 }
 
-func TestEscapeStr(t *testing.T) {
+func Test_escapeStr(t *testing.T) {
 	t.Run("always wraps a string in single quots", func(t *testing.T) {
 		got := escapeStr("foo")
 		if want := "'foo'"; want != got {

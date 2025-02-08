@@ -127,7 +127,7 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 
 	// validating existing password first if it's there
 	if opts.Password != "" {
-		err := creator.IsPasswordValid(opts.Password)
+		err := creator.ValidatePassword(opts.Password)
 		if err != nil {
 			return opts, fmt.Errorf("provided password does not meet the requirements: %w", err)
 		}
@@ -163,7 +163,7 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 			if err != nil {
 				return opts, nil
 			}
-			err = creator.IsPasswordValid(val)
+			err = creator.ValidatePassword(val)
 			if err != nil {
 				fmt.Println(err)
 				continue

@@ -21,5 +21,5 @@ type DefaultOpts struct {
 type DbCreator interface {
 	GetDefaultOpts() DefaultOpts
 	Create(shell Shell, opts CreateOptions) error
-	IsPasswordValid(password string) error
+	ValidatePassword(password string) error
 }

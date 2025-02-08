@@ -30,6 +30,6 @@ func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) e
 	)
 }
 
-func (pgs Creator) IsPasswordValid(password string) error {
+func (pgs Creator) ValidatePassword(password string) error {
 	return nil
 }

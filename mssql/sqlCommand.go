@@ -18,7 +18,6 @@ type SqlInContainerRunner struct {
 }
 
 func (r SqlInContainerRunner) Run(sql string) error {
-
 	if r.verbose {
 		if strings.ContainsRune(sql, '\n') {
 			fmt.Printf("SQL:\n%s --> END SQL \n", sql)

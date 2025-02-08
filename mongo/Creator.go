@@ -30,6 +30,6 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 	)
 }
 
-func (c Creator) IsPasswordValid(password string) error {
+func (c Creator) ValidatePassword(password string) error {
 	return nil
 }
