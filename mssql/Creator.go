@@ -46,6 +46,7 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 		verbose:  opts.Verbose,
 	}
 
+	v := VerboseLogger{opts.Verbose}
 	fmt.Println("Waiting for db to be up and running...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
@@ -55,7 +56,14 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 	// fast, and connectivity timeouts take quite some time to resolve.
 	waitOpts := WaitForOpts{PreDelay: 1000}
 
-	err = waitFor(ctx, func() error { return sql.Run("SELECT SERVERPROPERTY('ProductVersion')") }, waitOpts)
+	err = waitFor(ctx, func() error {
+		start := time.Now()
+		// can be SELECT SERVERPROPERTY('ProductVersion'), but its ouput is too long
+		err := sql.Run("SELECT 1")
+		end := time.Since(start)
+		v.Log("sql health check duration", end)
+		return err
+	}, waitOpts)
 	if err != nil {
 		return fmt.Errorf("failed to wait for the database to be operational: %w", err)
 	}
@@ -72,7 +80,6 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 		return err
 	}
 
-	v := VerboseLogger{opts.Verbose}
 	v.Log("Creating login")
 
 	escapedUser, err := escapeUser(opts.User)

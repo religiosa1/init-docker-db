@@ -6,8 +6,8 @@ type VerboseLogger struct {
 	verbose bool
 }
 
-func (l VerboseLogger) Log(s string) {
+func (l VerboseLogger) Log(s ...any) {
 	if l.verbose {
-		fmt.Printf("verbose: %s\n", s)
+		fmt.Println(s...)
 	}
 }
