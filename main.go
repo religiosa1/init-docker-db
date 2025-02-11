@@ -113,7 +113,7 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 		Password:      args.Password,
 		ContainerName: args.ContainerName,
 		Port:          args.Port,
-		Tag:           args.Tag,
+		DockerTag:     args.Tag,
 		Verbose:       args.Verbose,
 		DryRun:        args.Dry,
 	}
@@ -121,8 +121,8 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 	if opts.Port == 0 {
 		opts.Port = defaultOpts.Port
 	}
-	if opts.Tag == "" {
-		opts.Tag = defaultOpts.DockerTag
+	if opts.DockerTag == "" {
+		opts.DockerTag = defaultOpts.DockerTag
 	}
 
 	// validating existing password first if it's there

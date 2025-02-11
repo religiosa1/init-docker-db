@@ -6,7 +6,7 @@ type CreateOptions struct {
 	User          string
 	Password      string
 	Port          uint16
-	Tag           string
+	DockerTag     string
 	Verbose       bool
 	DryRun        bool
 }

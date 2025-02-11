@@ -26,7 +26,7 @@ func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) e
 		"-e", dbCreator.DockerEnv("POSTGRES_USER", opts.User),
 		"-e", dbCreator.DockerEnv("POSTGRES_DB", opts.Database),
 		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
-		"-d", fmt.Sprintf("postgres:%s", opts.Tag),
+		"-d", fmt.Sprintf("postgres:%s", opts.DockerTag),
 	)
 }
 
