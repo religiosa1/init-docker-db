@@ -13,8 +13,6 @@ across different database types.
 Using `--dry` flag, you can print the required commands to the terminal without
 actually executing them.
 
-Written using [bun](https://bun.sh/)
-
 ## Usage
 
 The easiest way is to launch the script in wizard mode:
@@ -84,40 +82,34 @@ the `docker` command available in the PATH, unless you're using the dry mode.
 
 ## Running/compiling localy
 
-To launch the project locally you first need to install [bun](https://bun.sh/),
-and clone the repo.
+To compile and run project, you need [go](https://go.dev/) version 1.22 or
+higher.
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run the script localy:
+To run the application locally from the source:
 
 ```bash
-bun run index.ts
+go run
 ```
 
 To build a standalone executable in the `./bin` folder:
 
 ```bash
-bun run compile
+go build
 ```
+
+Other tasks and targets are defined in the [taskfile](https://taskfile.dev/).
 
 To cross-compile all executables for all available targets:
 
 ```bash
-bun run compile-all
+task all
 ```
 
 To launch unit-tests:
 
 ```bash
-bun tun test
+task test
 ```
-
-For additional compilation targets, please refer to the [bun docs](https://bun.sh/docs/bundler/executables#cross-compile-to-other-platforms)
 
 ## Contribution
 

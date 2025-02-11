@@ -31,6 +31,9 @@ tasks:
         cmd: |
           GOOS=darwin GOARCH={{ .ITEM }} go build -o build/{{ .NAME }}-darwin-{{ .ITEM }}/{{ .NAME }}
           tar cz -C build -f build/{{ .NAME }}-darwin-{{ .ITEM }}.tar.gz {{ .NAME }}-darwin-{{ .ITEM }};
+  test:
+    cmds:
+      - go test -v ./...
   clean:
     cmds:
       - rm -r build
