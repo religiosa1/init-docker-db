@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.3.0] - 2025.02.11
+
 ### Added
 
 - MsSQL handling of potential SQL errors during container's setup.
@@ -20,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - MsSQL health check switched from `SELECT 1` to `SELECT SERVERPROPERTY('ProductVersion')`
 - MsSQL add owner switched from deprecated `sp_addrolemember` to `ALTER ROLE db_owner`
-- Turn on minification of the bunled code
 - Minor `--help` and error messages output changes
 
 ## [0.2.2] - 2025.01.31
