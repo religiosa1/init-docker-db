@@ -47,7 +47,7 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 	}
 
 	v := VerboseLogger{opts.Verbose}
-	fmt.Println("Waiting for db to be up and running...")
+	v.Log("Waiting for db to be up and running...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -58,8 +58,7 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 
 	err = waitFor(ctx, func() error {
 		start := time.Now()
-		// can be SELECT SERVERPROPERTY('ProductVersion'), but its ouput is too long
-		err := sql.Run("SELECT 1")
+		err := sql.RunSilent("SELECT SERVERPROPERTY('ProductVersion')")
 		end := time.Since(start)
 		v.Log("sql health check duration", end)
 		return err
@@ -68,7 +67,7 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 		return fmt.Errorf("failed to wait for the database to be operational: %w", err)
 	}
 
-	fmt.Println("Creating the database and required data...")
+	v.Log("Creating the database and required data...")
 
 	escapedDbName, err := escapeId(opts.Database)
 	if err != nil {

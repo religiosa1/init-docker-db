@@ -15,7 +15,7 @@ func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 		Port:      port,
 		User:      "postgres",
 		DockerTag: "latest",
-		Password:  "",
+		Password:  "postgres",
 	}
 }
 

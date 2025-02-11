@@ -65,9 +65,6 @@ func main() {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	if !CLI.Dry {
-		fmt.Println("Done")
-	}
 }
 
 func getCreator(rl Readline, dbType string, nonInteractive bool) (dbCreator.DbCreator, error) {
@@ -155,29 +152,36 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 		opts.User = val
 	}
 	if opts.Password == "" {
-		for {
-			if args.NonInteractive {
+		if args.NonInteractive {
+			if defaultOpts.Password != "" {
 				return opts, fmt.Errorf("password is requied in non-interactive mode, but not provided")
 			}
-			val, err := rl.Question("database password?", defaultOpts.Password)
-			if err != nil {
-				return opts, nil
+		} else {
+			for {
+				val, err := rl.Question("database password?", defaultOpts.Password)
+				if err != nil {
+					return opts, nil
+				}
+				err = creator.ValidatePassword(val)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				opts.Password = val
+				break
 			}
-			err = creator.ValidatePassword(val)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-			opts.Password = val
-			break
 		}
 	}
 	if opts.ContainerName == "" {
-		val, err := rl.Question("docker container name?", RandomName.Generate())
-		if err != nil {
-			return opts, nil
+		if args.NonInteractive {
+			opts.ContainerName = RandomName.Generate()
+		} else {
+			val, err := rl.Question("docker container name?", RandomName.Generate())
+			if err != nil {
+				return opts, nil
+			}
+			opts.ContainerName = val
 		}
-		opts.ContainerName = val
 	}
 
 	return opts, nil

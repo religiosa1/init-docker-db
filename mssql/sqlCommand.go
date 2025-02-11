@@ -17,7 +17,20 @@ type SqlInContainerRunner struct {
 	verbose  bool
 }
 
+func (r SqlInContainerRunner) RunSilent(sql string) error {
+	_, err := r.run(sql)
+	return err
+}
+
 func (r SqlInContainerRunner) Run(sql string) error {
+	out, err := r.run(sql)
+	if err != nil && !r.verbose {
+		fmt.Println(out)
+	}
+	return err
+}
+
+func (r SqlInContainerRunner) run(sql string) (string, error) {
 	if r.verbose {
 		if strings.ContainsRune(sql, '\n') {
 			fmt.Printf("SQL:\n%s --> END SQL \n", sql)
@@ -34,13 +47,9 @@ func (r SqlInContainerRunner) Run(sql string) error {
 		fmt.Println(out)
 	}
 	if err != nil {
-		return err
+		return out, err
 	}
-	err = hasSqlCommandError(out)
-	if err != nil && !r.verbose {
-		fmt.Println(out)
-	}
-	return err
+	return out, parseSqlCommandError(out)
 }
 
 func (r SqlInContainerRunner) RunInDb(sql string) error {
@@ -53,7 +62,7 @@ func (r SqlInContainerRunner) RunInDb(sql string) error {
 
 var mssqlErrRe *regexp.Regexp
 
-func hasSqlCommandError(output string) error {
+func parseSqlCommandError(output string) error {
 	if mssqlErrRe == nil {
 		mssqlErrRe = regexp.MustCompile(`^Msg (?:\d+), Level (\d+), State (?:\d+), Server (?:[^,]+), Line (?:\d+)`)
 	}
