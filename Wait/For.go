@@ -1,4 +1,4 @@
-package mssql
+package Wait
 
 import (
 	"context"
@@ -9,14 +9,14 @@ import (
 
 // TODO add MaxCmdExecutionTime and abort command if it doesn't resolve in the
 // given amount of time, so we don't wait for connectivity timeouts for ages
-type WaitForOpts struct {
+type Opts struct {
 	PreDelay time.Duration
 	MinDelay time.Duration
 	MaxDelay time.Duration
 	Rate     float64
 }
 
-func waitFor(ctx context.Context, exp func() error, opts WaitForOpts) error {
+func For(ctx context.Context, exp func() error, opts Opts) error {
 	if opts.MinDelay == 0 {
 		opts.MinDelay = time.Duration(500) * time.Millisecond
 	}

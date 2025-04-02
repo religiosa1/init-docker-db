@@ -30,9 +30,8 @@ database password? (123456):
 docker container name? (random-shortname):
 > mydb
 
-# Outputs ID of the created container and "Done" on success:
+# Outputs ID of the created container on success:
 2d42f1fbfcd63c64a56a9034af26f0bffe1157c125f4921a5f6e08c4e22a311c
-Done
 ```
 
 This will create a database container with the specified parameters, exposing
@@ -97,18 +96,18 @@ To build a standalone executable in the `./bin` folder:
 go build
 ```
 
+To launch unit-tests:
+
+```bash
+go test ./...
+```
+
 Other tasks and targets are defined in the [taskfile](https://taskfile.dev/).
 
 To cross-compile all executables for all available targets:
 
 ```bash
 task all
-```
-
-To launch unit-tests:
-
-```bash
-task test
 ```
 
 ## Contribution

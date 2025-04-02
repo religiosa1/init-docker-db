@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/religiosa1/init-docker-db/Wait"
 	"github.com/religiosa1/init-docker-db/dbCreator"
 )
 
@@ -54,9 +55,9 @@ func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) err
 
 	// predelaying waiting for 1 seconds, as there's no way MsSQL can launch that
 	// fast, and connectivity timeouts take quite some time to resolve.
-	waitOpts := WaitForOpts{PreDelay: 1000}
+	waitOpts := Wait.Opts{PreDelay: 1000}
 
-	err = waitFor(ctx, func() error {
+	err = Wait.For(ctx, func() error {
 		start := time.Now()
 		err := sql.RunSilent("SELECT SERVERPROPERTY('ProductVersion')")
 		end := time.Since(start)
