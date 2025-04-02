@@ -79,6 +79,12 @@ from the latest release and drop it somewhere in your PATH.
 Operation requires docker-engine to be available on your machine, with
 the `docker` command available in the PATH, unless you're using the dry mode.
 
+Alternatively, if you have `go` installed on your machine you can run:
+
+```bash
+go install github.com/religiosa1/init-docker-db@latest
+```
+
 ## Running/compiling localy
 
 To compile and run project, you need [go](https://go.dev/) version 1.22 or

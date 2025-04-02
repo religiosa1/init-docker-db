@@ -1,4 +1,4 @@
-package initdockerdb
+package main
 
 import (
 	"bufio"

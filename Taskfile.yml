@@ -2,38 +2,42 @@ version: "3"
 
 vars:
   NAME: "init-docker-db"
+  VERSION: '{{ default "dev" .VERSION }}' # Default to "dev" if not set
+
 tasks:
   all:
     - task: release-unix
     - task: release-windows
     - task: release-darwin
+
   release-unix:
     vars:
       ARCH: [amd64, arm, arm64]
     cmds:
       - for: { var: ARCH }
         cmd: |
-          GOOS=linux GOARCH={{ .ITEM }} go build -o build/{{ .NAME }}-linux-{{ .ITEM }}/{{ .NAME }} && \
-          tar cz -C build -f build/{{ .NAME }}-linux-{{ .ITEM }}.tar.gz {{ .NAME }}-linux-{{ .ITEM }};
+          GOOS=linux GOARCH={{ .ITEM }} go build -ldflags="-X 'main.version={{ .VERSION }}'" -o build/{{ .NAME }}-linux-{{ .ITEM }}
+
   release-windows:
     vars:
       ARCH: [amd64, arm, arm64]
     cmds:
       - for: { var: ARCH }
         cmd: |
-          GOOS=windows GOARCH={{ .ITEM }} go build -o build/{{ .NAME }}-win-{{ .ITEM }}/{{ .NAME }}.exe && \
-          tar cz -C build -f build/{{ .NAME }}-win-{{ .ITEM }}.tar.gz {{ .NAME }}-win-{{ .ITEM }};
+          GOOS=windows GOARCH={{ .ITEM }} go build -ldflags="-X 'main.version={{ .VERSION }}'" -o build/{{ .NAME }}-win-{{ .ITEM }}.exe
+
   release-darwin:
     vars:
       ARCH: [amd64, arm64]
     cmds:
       - for: { var: ARCH }
         cmd: |
-          GOOS=darwin GOARCH={{ .ITEM }} go build -o build/{{ .NAME }}-darwin-{{ .ITEM }}/{{ .NAME }}
-          tar cz -C build -f build/{{ .NAME }}-darwin-{{ .ITEM }}.tar.gz {{ .NAME }}-darwin-{{ .ITEM }};
+          GOOS=darwin GOARCH={{ .ITEM }} go build -ldflags="-X 'main.version={{ .VERSION }}'" -o build/{{ .NAME }}-darwin-{{ .ITEM }}
+
   test:
     cmds:
       - go test -v ./...
+
   clean:
     cmds:
       - rm -r build

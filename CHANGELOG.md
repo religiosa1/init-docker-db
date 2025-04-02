@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.0.0] - 2025.04.02
+
 ### Changed
 
 - Full rewrite to golang.
 - Postgres default password is now "password" and creation of DB without password
   is forbidden, as it results in failed container.
-- `Done` suffix removed from thr programm output, only direct `docker run`
+- `Done` suffix removed from thr program output, only direct `docker run`
   output with container's ID is now printed in non-verbose mode.
 
 ## [0.3.0] - 2025.02.11

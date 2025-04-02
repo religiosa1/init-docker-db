@@ -1,4 +1,4 @@
-package initdockerdb
+package main
 
 import (
 	"fmt"
@@ -14,6 +14,8 @@ import (
 	"github.com/religiosa1/init-docker-db/mysql"
 	"github.com/religiosa1/init-docker-db/postgres"
 )
+
+var version = "dev" // Default value if not set by -ldflags
 
 type CliArgs struct {
 	ContainerName  string `arg:"" optional:"" name:"containerName" help:"name of the database container to be created"`
@@ -206,14 +208,17 @@ func helpPrinter(options kong.HelpOptions, ctx *kong.Context) error {
 }
 
 func showVersion() {
+	if version != "dev" {
+		fmt.Printf("%s\n", version)
+		return
+	}
 	info, ok := debug.ReadBuildInfo()
 	if !ok {
 		fmt.Println("Build information not available")
 		return
 	}
-
-	version := info.Main.Version
-	if version == "(devel)" {
+	buildInfoVersion := info.Main.Version
+	if buildInfoVersion == "(devel)" {
 		var commit string
 		var dirty bool
 		for _, setting := range info.Settings {
@@ -224,11 +229,11 @@ func showVersion() {
 				dirty = setting.Value == "true"
 			}
 		}
-		version += " " + commit
+		buildInfoVersion += " " + commit
 		if dirty {
-			version += " dirty"
+			buildInfoVersion += " dirty"
 		}
 	}
 
-	fmt.Printf("%s\n", version)
+	fmt.Printf("%s\n", buildInfoVersion)
 }
