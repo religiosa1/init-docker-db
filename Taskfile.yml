@@ -3,7 +3,7 @@ version: "3"
 vars:
   NAME: "init-docker-db"
   # Don't forget to set it during release builds!
-  # VERSION=1.2.3 task all
+  # VERSION=v1.2.3 task all
   VERSION: '{{ default "dev" .VERSION }}' 
 
 tasks:
