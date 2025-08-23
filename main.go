@@ -12,6 +12,7 @@ import (
 	"github.com/religiosa1/init-docker-db/creators/mssql"
 	"github.com/religiosa1/init-docker-db/creators/mysql"
 	"github.com/religiosa1/init-docker-db/creators/postgres"
+	"github.com/religiosa1/init-docker-db/creators/redis"
 	"github.com/religiosa1/init-docker-db/dbCreator"
 )
 
@@ -78,7 +79,7 @@ func getCreator(rl Readline, dbType string, nonInteractive bool) (dbCreator.DbCr
 	}
 	const defaultDbType string = "postgres"
 	for {
-		creatorId, err := rl.Question("database type? [postgres, mysql, mssql, mongo]", defaultDbType)
+		creatorId, err := rl.Question("database type? [postgres, mysql, mssql, mongo, redis]", defaultDbType)
 		if err != nil {
 			return nil, err
 		}
@@ -100,12 +101,15 @@ func makeCreatorById(dbType string) (dbCreator.DbCreator, error) {
 		return mysql.Creator{}, nil
 	case "mongo":
 		return mongo.Creator{}, nil
+	case "redis":
+		return redis.Creator{}, nil
 	}
 	return nil, fmt.Errorf("unknown db type '%s'. Must be one of 'postgres', 'mysql', 'mongo'", dbType)
 }
 
 func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreator.CreateOptions, error) {
 	defaultOpts := creator.GetDefaultOpts()
+	capabilities := creator.GetCapabilities()
 	opts := dbCreator.CreateOptions{
 		Database:      args.Database,
 		User:          args.User,
@@ -133,9 +137,9 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 	}
 
 	// Filling out the rest of missing data in interactive mode if allowed
-	if opts.Database == "" {
+	if capabilities.DatabaseName && opts.Database == "" {
 		if args.NonInteractive {
-			return opts, fmt.Errorf("database name is requied in non-interactive mode, but not provided")
+			return opts, fmt.Errorf("database name is required in non-interactive mode, but not provided")
 		}
 		val, err := rl.Question("database name?", "db")
 		if err != nil {
@@ -143,9 +147,12 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 		}
 		opts.Database = val
 	}
-	if opts.User == "" {
+	if !capabilities.DatabaseName && opts.Database != "" {
+		fmt.Fprintln(os.Stderr, "This DB type doesn't support database name, so provided argument is ignored")
+	}
+	if capabilities.UserPassword && opts.User == "" {
 		if args.NonInteractive {
-			return opts, fmt.Errorf("db username is requied in non-interactive mode, but not provided")
+			return opts, fmt.Errorf("db username is required in non-interactive mode, but not provided")
 		}
 		val, err := rl.Question("database user?", defaultOpts.User)
 		if err != nil {
@@ -153,10 +160,10 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 		}
 		opts.User = val
 	}
-	if opts.Password == "" {
+	if capabilities.UserPassword && opts.Password == "" {
 		if args.NonInteractive {
 			if defaultOpts.Password != "" {
-				return opts, fmt.Errorf("password is requied in non-interactive mode, but not provided")
+				return opts, fmt.Errorf("password is required in non-interactive mode, but not provided")
 			}
 		} else {
 			for {
@@ -173,6 +180,9 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 				break
 			}
 		}
+	}
+	if !capabilities.UserPassword && (opts.User != "" || opts.Password != "") {
+		fmt.Fprintln(os.Stderr, "This DB type doesn't support user/password for its auth, so provided argument is ignored")
 	}
 	if opts.ContainerName == "" {
 		if args.NonInteractive {

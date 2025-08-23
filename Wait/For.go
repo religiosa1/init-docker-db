@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-// TODO add MaxCmdExecutionTime and abort command if it doesn't resolve in the
-// given amount of time, so we don't wait for connectivity timeouts for ages
+// Wait options
 type Opts struct {
 	PreDelay time.Duration
 	MinDelay time.Duration
@@ -16,6 +15,8 @@ type Opts struct {
 	Rate     float64
 }
 
+// Wait for exp to return without an error, retrying its calls with
+// an increasing exponential backoff
 func For(ctx context.Context, exp func() error, opts Opts) error {
 	if opts.MinDelay == 0 {
 		opts.MinDelay = time.Duration(500) * time.Millisecond

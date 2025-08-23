@@ -10,6 +10,7 @@ import (
  * https://github.com/boringprotocol/boring-name-generator
  */
 
+// Generate a random name for docker container
 func Generate() string {
 	adjIdx := rand.Intn(len(adjectives))
 	nounIdx := rand.Intn(len(nouns))

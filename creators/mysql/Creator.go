@@ -19,6 +19,13 @@ func (c Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	}
 }
 
+func (c Creator) GetCapabilities() dbCreator.Capabilities {
+	return dbCreator.Capabilities{
+		DatabaseName: true,
+		UserPassword: true,
+	}
+}
+
 func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
 	// https://hub.docker.com/_/mysql
 	return shell.Run("docker", "run", "--name", opts.ContainerName,

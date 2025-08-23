@@ -24,6 +24,13 @@ func (c Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	}
 }
 
+func (c Creator) GetCapabilities() dbCreator.Capabilities {
+	return dbCreator.Capabilities{
+		DatabaseName: true,
+		UserPassword: true,
+	}
+}
+
 func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
 	// https://mcr.microsoft.com/product/mssql/server/about
 	shellOutput, err := shell.RunWithOutput("docker", "run", "-e", "ACCEPT_EULA=Y",

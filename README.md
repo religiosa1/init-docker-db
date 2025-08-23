@@ -36,7 +36,7 @@ docker container name? (random-shortname):
 
 This will create a database container with the specified parameters, exposing
 its port (depending on the type, 5432 for postgres, 3306 for MySql,
-1433 for MsSql, 27017 for Mongo).
+1433 for MsSql, 27017 for Mongo, 6379 for redis).
 
 Alternatively, you can configure any of the parameters and the port by the CLI
 flags:
