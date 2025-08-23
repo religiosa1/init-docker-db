@@ -85,7 +85,7 @@ Alternatively, if you have `go` installed on your machine you can run:
 go install github.com/religiosa1/init-docker-db@latest
 ```
 
-## Running/compiling localy
+## Running/compiling locally
 
 To compile and run project, you need [go](https://go.dev/) version 1.22 or
 higher.
@@ -118,7 +118,7 @@ task all
 
 ## Contribution
 
-If you have suggsetions or bugfix, feel free to create a PR!
+If you have suggestions or bugfix, feel free to create a PR!
 
 ## License
 

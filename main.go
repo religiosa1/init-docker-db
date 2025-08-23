@@ -8,11 +8,11 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/religiosa1/init-docker-db/RandomName"
+	"github.com/religiosa1/init-docker-db/creators/mongo"
+	"github.com/religiosa1/init-docker-db/creators/mssql"
+	"github.com/religiosa1/init-docker-db/creators/mysql"
+	"github.com/religiosa1/init-docker-db/creators/postgres"
 	"github.com/religiosa1/init-docker-db/dbCreator"
-	"github.com/religiosa1/init-docker-db/mongo"
-	"github.com/religiosa1/init-docker-db/mssql"
-	"github.com/religiosa1/init-docker-db/mysql"
-	"github.com/religiosa1/init-docker-db/postgres"
 )
 
 var version = "dev" // Default value if not set by -ldflags
