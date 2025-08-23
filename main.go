@@ -16,7 +16,7 @@ import (
 	"github.com/religiosa1/init-docker-db/dbCreator"
 )
 
-var version = "dev" // Default value if not set by -ldflags
+var ldVersion = "" // Version set by -ldflags during the Taskfile build
 
 type CliArgs struct {
 	ContainerName  string `arg:"" optional:"" name:"containerName" help:"name of the database container to be created"`
@@ -218,8 +218,8 @@ func helpPrinter(options kong.HelpOptions, ctx *kong.Context) error {
 }
 
 func showVersion() {
-	if version != "dev" {
-		fmt.Printf("%s\n", version)
+	if ldVersion != "" {
+		fmt.Printf("%s\n", ldVersion)
 		return
 	}
 	info, ok := debug.ReadBuildInfo()
