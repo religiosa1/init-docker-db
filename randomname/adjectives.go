@@ -1,4 +1,4 @@
-package RandomName
+package randomname
 
 var adjectives = [...]string{
 	"boring",

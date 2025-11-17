@@ -1,17 +1,18 @@
+// Package postgres implements DBCreator interface for PostreSQL
 package postgres
 
 import (
 	"fmt"
 
-	"github.com/religiosa1/init-docker-db/dbCreator"
+	"github.com/religiosa1/init-docker-db/dbcreator"
 )
 
 type Creator struct{}
 
 const port uint16 = 5432
 
-func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
-	return dbCreator.DefaultOpts{
+func (c Creator) GetDefaultOpts() dbcreator.DefaultOpts {
+	return dbcreator.DefaultOpts{
 		Port:      port,
 		User:      "postgres",
 		DockerTag: "latest",
@@ -19,24 +20,24 @@ func (pgs Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	}
 }
 
-func (c Creator) GetCapabilities() dbCreator.Capabilities {
-	return dbCreator.Capabilities{
+func (c Creator) GetCapabilities() dbcreator.Capabilities {
+	return dbcreator.Capabilities{
 		DatabaseName: true,
 		UserPassword: true,
 	}
 }
 
-func (pgs Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
+func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://hub.docker.com/_/postgres
 	return shell.Run("docker", "run", "--name", opts.ContainerName,
-		"-e", dbCreator.DockerEnv("POSTGRES_PASSWORD", opts.Password),
-		"-e", dbCreator.DockerEnv("POSTGRES_USER", opts.User),
-		"-e", dbCreator.DockerEnv("POSTGRES_DB", opts.Database),
+		"-e", dbcreator.DockerEnv("POSTGRES_PASSWORD", opts.Password),
+		"-e", dbcreator.DockerEnv("POSTGRES_USER", opts.User),
+		"-e", dbcreator.DockerEnv("POSTGRES_DB", opts.Database),
 		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
 		"-d", fmt.Sprintf("postgres:%s", opts.DockerTag),
 	)
 }
 
-func (pgs Creator) ValidatePassword(password string) error {
+func (c Creator) ValidatePassword(password string) error {
 	return nil
 }

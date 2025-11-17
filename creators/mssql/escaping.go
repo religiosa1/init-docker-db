@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func escapeId(name string) (string, error) {
+func escapeID(name string) (string, error) {
 	if name == "" {
 		return "", errors.New("mssql identifier cannot be empty")
 	}
@@ -23,7 +23,7 @@ func escapeUser(name string) (string, error) {
 	if len(name) >= 128 {
 		return "", errors.New("user name cannot be longer than 128 charaters")
 	}
-	return escapeId(name)
+	return escapeID(name)
 }
 
 func isRunePrintable(r rune) bool {

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_escapeId(t *testing.T) {
+func Test_escapeID(t *testing.T) {
 	bracketsValues := [...]struct {
 		input  string
 		output string
@@ -17,7 +17,7 @@ func Test_escapeId(t *testing.T) {
 
 	for _, tt := range bracketsValues {
 		t.Run("always wrap identifier in square brackets: "+tt.input+" => "+tt.output, func(t *testing.T) {
-			got, err := escapeId(tt.input)
+			got, err := escapeID(tt.input)
 			if err != nil {
 				t.Error(err)
 			}
@@ -28,7 +28,7 @@ func Test_escapeId(t *testing.T) {
 	}
 
 	t.Run("treats characters from range [_$#@.\\-] as valid", func(t *testing.T) {
-		got, err := escapeId("_$#.@-")
+		got, err := escapeID("_$#.@-")
 		if err != nil {
 			t.Error(err)
 		}
@@ -38,23 +38,22 @@ func Test_escapeId(t *testing.T) {
 	})
 
 	t.Run("throws on empty strings", func(t *testing.T) {
-		got, err := escapeId("")
+		got, err := escapeID("")
 		if got != "" || err == nil {
-			t.Error("expected escapeId to throw, but it didn't")
+			t.Error("expected escapeID to throw, but it didn't")
 		}
 	})
 
 	t.Run("throw on non-printable characters in identifiers", func(t *testing.T) {
-		_, err := escapeId("f\noo")
+		_, err := escapeID("f\noo")
 		if err == nil {
-			t.Error("expected escapeId to throw, but it didn't")
+			t.Error("expected escapeID to throw, but it didn't")
 		}
-		_, err = escapeId("f\boo")
+		_, err = escapeID("f\boo")
 		if err == nil {
-			t.Error("expected escapeId to throw, but it didn't")
+			t.Error("expected escapeID to throw, but it didn't")
 		}
 	})
-
 }
 
 func Test_escapeUser(t *testing.T) {
@@ -105,7 +104,7 @@ func Test_escapeUser(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
-				id, err := escapeId(value)
+				id, err := escapeID(value)
 				if err != nil {
 					t.Error(err)
 				}

@@ -7,13 +7,13 @@ import (
 	"text/tabwriter"
 
 	"github.com/alecthomas/kong"
-	"github.com/religiosa1/init-docker-db/RandomName"
 	"github.com/religiosa1/init-docker-db/creators/mongo"
 	"github.com/religiosa1/init-docker-db/creators/mssql"
 	"github.com/religiosa1/init-docker-db/creators/mysql"
 	"github.com/religiosa1/init-docker-db/creators/postgres"
 	"github.com/religiosa1/init-docker-db/creators/redis"
-	"github.com/religiosa1/init-docker-db/dbCreator"
+	"github.com/religiosa1/init-docker-db/dbcreator"
+	"github.com/religiosa1/init-docker-db/randomname"
 )
 
 var ldVersion = "" // Version set by -ldflags during the Taskfile build
@@ -63,27 +63,27 @@ func main() {
 		fmt.Println("") // if we printed anything on console, using empty string as a delimiter
 	}
 
-	err = creator.Create(dbCreator.NewShell(options.DryRun, options.Verbose), options)
+	err = creator.Create(dbcreator.NewShell(options.DryRun, options.Verbose), options)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
 }
 
-func getCreator(rl Readline, dbType string, nonInteractive bool) (dbCreator.DbCreator, error) {
+func getCreator(rl Readline, dbType string, nonInteractive bool) (dbcreator.DBCreator, error) {
 	if dbType != "" {
-		return makeCreatorById(dbType)
+		return makeCreatorByID(dbType)
 	}
 	if nonInteractive {
 		return nil, fmt.Errorf("must supply database type in non-interactive mode")
 	}
-	const defaultDbType string = "postgres"
+	const defaultDBType string = "postgres"
 	for {
-		creatorId, err := rl.Question("database type? [postgres, mysql, mssql, mongo, redis]", defaultDbType)
+		creatorID, err := rl.Question("database type? [postgres, mysql, mssql, mongo, redis]", defaultDBType)
 		if err != nil {
 			return nil, err
 		}
-		creator, err := makeCreatorById(creatorId)
+		creator, err := makeCreatorByID(creatorID)
 		if err == nil {
 			return creator, nil
 		}
@@ -91,7 +91,7 @@ func getCreator(rl Readline, dbType string, nonInteractive bool) (dbCreator.DbCr
 	}
 }
 
-func makeCreatorById(dbType string) (dbCreator.DbCreator, error) {
+func makeCreatorByID(dbType string) (dbcreator.DBCreator, error) {
 	switch dbType {
 	case "postgres":
 		return postgres.Creator{}, nil
@@ -107,10 +107,10 @@ func makeCreatorById(dbType string) (dbCreator.DbCreator, error) {
 	return nil, fmt.Errorf("unknown db type '%s'. Must be one of 'postgres', 'mysql', 'mongo'", dbType)
 }
 
-func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreator.CreateOptions, error) {
+func getOptions(rl Readline, creator dbcreator.DBCreator, args CliArgs) (dbcreator.CreateOptions, error) {
 	defaultOpts := creator.GetDefaultOpts()
 	capabilities := creator.GetCapabilities()
-	opts := dbCreator.CreateOptions{
+	opts := dbcreator.CreateOptions{
 		Database:      args.Database,
 		User:          args.User,
 		Password:      args.Password,
@@ -186,9 +186,9 @@ func getOptions(rl Readline, creator dbCreator.DbCreator, args CliArgs) (dbCreat
 	}
 	if opts.ContainerName == "" {
 		if args.NonInteractive {
-			opts.ContainerName = RandomName.Generate()
+			opts.ContainerName = randomname.Generate()
 		} else {
-			val, err := rl.Question("docker container name?", RandomName.Generate())
+			val, err := rl.Question("docker container name?", randomname.Generate())
 			if err != nil {
 				return opts, nil
 			}
@@ -208,11 +208,13 @@ func helpPrinter(options kong.HelpOptions, ctx *kong.Context) error {
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
-	fmt.Fprintf(w, "  %s\tRun in wizard mode\n", ctx.Model.Name)
-	fmt.Fprintf(w, "  %s --dry\tDry-run in wizard mode\n", ctx.Model.Name)
-	fmt.Fprintf(w, "  %s -t mssql -u app_user\tCreate a MsSQL database using provided username\n", ctx.Model.Name)
+	_, _ = fmt.Fprintf(w, "  %s\tRun in wizard mode\n", ctx.Model.Name)
+	_, _ = fmt.Fprintf(w, "  %s --dry\tDry-run in wizard mode\n", ctx.Model.Name)
+	_, _ = fmt.Fprintf(w, "  %s -t mssql -u app_user\tCreate a MsSQL database using provided username\n", ctx.Model.Name)
 
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		return err
+	}
 
 	return nil
 }

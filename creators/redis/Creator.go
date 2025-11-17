@@ -1,17 +1,18 @@
+// Package redis implements DBCreator interface for Redis
 package redis
 
 import (
 	"fmt"
 
-	"github.com/religiosa1/init-docker-db/dbCreator"
+	"github.com/religiosa1/init-docker-db/dbcreator"
 )
 
 type Creator struct{}
 
 const port uint16 = 6379
 
-func (c Creator) GetDefaultOpts() dbCreator.DefaultOpts {
-	return dbCreator.DefaultOpts{
+func (c Creator) GetDefaultOpts() dbcreator.DefaultOpts {
+	return dbcreator.DefaultOpts{
 		Port:      port,
 		User:      "",
 		DockerTag: "latest",
@@ -19,14 +20,14 @@ func (c Creator) GetDefaultOpts() dbCreator.DefaultOpts {
 	}
 }
 
-func (c Creator) GetCapabilities() dbCreator.Capabilities {
-	return dbCreator.Capabilities{
+func (c Creator) GetCapabilities() dbcreator.Capabilities {
+	return dbcreator.Capabilities{
 		DatabaseName: false,
 		UserPassword: false,
 	}
 }
 
-func (c Creator) Create(shell dbCreator.Shell, opts dbCreator.CreateOptions) error {
+func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://hub.docker.com/_/redis/
 	return shell.Run("docker", "run", "--name", opts.ContainerName,
 		"-p", fmt.Sprintf("%d:%d", port, opts.Port),

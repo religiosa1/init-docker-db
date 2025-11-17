@@ -1,4 +1,6 @@
-package RandomName
+// Package randomname provides an utility function for generating a random
+// adj-noun name for a dcker container
+package randomname
 
 import (
 	"fmt"

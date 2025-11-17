@@ -1,4 +1,6 @@
-package dbCreator
+// Package dbcreator provides an inteface for a specific type of DBCreator
+// e.g. Posrgres, MYSQL, etc.
+package dbcreator
 
 type CreateOptions struct {
 	ContainerName string
@@ -11,13 +13,13 @@ type CreateOptions struct {
 	DryRun        bool
 }
 
-// Creator capabilities list
+// Capabilities are the list of DBCreator capabilities
 type Capabilities struct {
 	DatabaseName bool
 	UserPassword bool
 }
 
-// Creator default options
+// DefaultOpts are default options for the DBCreator
 type DefaultOpts struct {
 	User      string
 	DockerTag string
@@ -25,7 +27,7 @@ type DefaultOpts struct {
 	Password  string
 }
 
-type DbCreator interface {
+type DBCreator interface {
 	GetDefaultOpts() DefaultOpts
 	GetCapabilities() Capabilities
 	Create(shell Shell, opts CreateOptions) error

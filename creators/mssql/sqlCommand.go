@@ -6,23 +6,23 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/religiosa1/init-docker-db/dbCreator"
+	"github.com/religiosa1/init-docker-db/dbcreator"
 )
 
-type SqlInContainerRunner struct {
-	shell    *dbCreator.Shell
-	contId   string
+type SQLInContainerRunner struct {
+	shell    *dbcreator.Shell
+	contID   string
 	database string
 	password string
 	verbose  bool
 }
 
-func (r SqlInContainerRunner) RunSilent(sql string) error {
+func (r SQLInContainerRunner) RunSilent(sql string) error {
 	_, err := r.run(sql)
 	return err
 }
 
-func (r SqlInContainerRunner) Run(sql string) error {
+func (r SQLInContainerRunner) Run(sql string) error {
 	out, err := r.run(sql)
 	if err != nil && !r.verbose {
 		fmt.Println(out)
@@ -30,7 +30,7 @@ func (r SqlInContainerRunner) Run(sql string) error {
 	return err
 }
 
-func (r SqlInContainerRunner) run(sql string) (string, error) {
+func (r SQLInContainerRunner) run(sql string) (string, error) {
 	if r.verbose {
 		if strings.ContainsRune(sql, '\n') {
 			fmt.Printf("SQL:\n%s --> END SQL \n", sql)
@@ -39,7 +39,7 @@ func (r SqlInContainerRunner) run(sql string) (string, error) {
 		}
 	}
 	out, err := r.shell.RunWithOutput(
-		"docker", "exec", r.contId,
+		"docker", "exec", r.contID,
 		"/opt/mssql-tools/bin/sqlcmd", "-S", "localhost",
 		"-U", "SA", "-P", r.password, "-Q", sql,
 	)
@@ -49,20 +49,20 @@ func (r SqlInContainerRunner) run(sql string) (string, error) {
 	if err != nil {
 		return out, err
 	}
-	return out, parseSqlCommandError(out)
+	return out, parseSQLCommandError(out)
 }
 
-func (r SqlInContainerRunner) RunInDb(sql string) error {
-	escapedDbName, err := escapeId(r.database)
+func (r SQLInContainerRunner) RunInDB(sql string) error {
+	escapedDBName, err := escapeID(r.database)
 	if err != nil {
 		return err
 	}
-	return r.Run(fmt.Sprintf("use %s\n%s", escapedDbName, sql))
+	return r.Run(fmt.Sprintf("use %s\n%s", escapedDBName, sql))
 }
 
 var mssqlErrRe *regexp.Regexp
 
-func parseSqlCommandError(output string) error {
+func parseSQLCommandError(output string) error {
 	if mssqlErrRe == nil {
 		mssqlErrRe = regexp.MustCompile(`^Msg (?:\d+), Level (\d+), State (?:\d+), Server (?:[^,]+), Line (?:\d+)`)
 	}
@@ -73,7 +73,10 @@ func parseSqlCommandError(output string) error {
 	}
 
 	var errorLevel int
-	fmt.Sscanf(matches[1], "%d", &errorLevel)
+	_, err := fmt.Sscanf(matches[1], "%d", &errorLevel)
+	if err != nil {
+		return err
+	}
 
 	// Any severity level less or equal 10 we treat as not an error
 	// https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-error-severities?view=sql-server-ver16#levels-of-severity

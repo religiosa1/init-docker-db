@@ -1,4 +1,4 @@
-package dbCreator
+package dbcreator
 
 import (
 	"fmt"
@@ -8,18 +8,18 @@ import (
 	"strings"
 )
 
-// Format DockerEnv variable for passing to docker options
+// DockerEnv formats DockerEnv variable for passing to docker options
 func DockerEnv(key string, value string) string {
 	return fmt.Sprintf("%s=%s", key, value)
 }
 
-// Child process runner with output verbosity flag
+// Shell is a child process runner with output verbosity flag
 type Shell struct {
 	dryRun  bool
 	verbose bool
 }
 
-// Create new shell instance
+// NewShell creates a  new shell instance
 func NewShell(dryRun bool, verbose bool) Shell {
 	return Shell{
 		dryRun:  dryRun,
@@ -27,7 +27,7 @@ func NewShell(dryRun bool, verbose bool) Shell {
 	}
 }
 
-// Create new shell instance
+// RunWithOutput runs a new shell instance capturing it's stdtout as a return value
 func (sh Shell) RunWithOutput(name string, args ...string) (string, error) {
 	if sh.dryRun || sh.verbose {
 		fmt.Println(makeShellCmdString(name, args...))
@@ -40,7 +40,7 @@ func (sh Shell) RunWithOutput(name string, args ...string) (string, error) {
 	return string(out), err
 }
 
-// Run a child process, printing its outputs to Stdout/Stderr only in the verbose mode
+// RunSilent runs a child process, printing its outputs to Stdout/Stderr only in the verbose mode
 func (sh Shell) RunSilent(name string, args ...string) error {
 	if sh.dryRun || sh.verbose {
 		fmt.Println(makeShellCmdString(name, args...))

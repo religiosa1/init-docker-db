@@ -1,4 +1,5 @@
-package Wait
+// Package wait provides utility for exponential backoff polling
+package wait
 
 import (
 	"context"
@@ -7,7 +8,7 @@ import (
 	"time"
 )
 
-// Wait options
+// Opts is  options for wait.For function
 type Opts struct {
 	PreDelay time.Duration
 	MinDelay time.Duration
@@ -15,7 +16,7 @@ type Opts struct {
 	Rate     float64
 }
 
-// Wait for exp to return without an error, retrying its calls with
+// For waits for exp to return without an error, retrying its calls with
 // an increasing exponential backoff
 func For(ctx context.Context, exp func() error, opts Opts) error {
 	if opts.MinDelay == 0 {
