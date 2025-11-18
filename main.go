@@ -7,6 +7,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/alecthomas/kong"
+	"github.com/charmbracelet/huh"
 	"github.com/religiosa1/init-docker-db/creators/mongo"
 	"github.com/religiosa1/init-docker-db/creators/mssql"
 	"github.com/religiosa1/init-docker-db/creators/mysql"
@@ -47,20 +48,15 @@ func main() {
 		return
 	}
 
-	rl := NewReadline()
-	creator, err := getCreator(rl, CLI.Type, CLI.NonInteractive)
+	creator, err := getCreator(CLI.Type, CLI.NonInteractive)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	options, err := getOptions(rl, creator, CLI)
+	options, err := getOptions(creator, CLI)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-
-	if rl.hadOutput {
-		fmt.Println("") // if we printed anything on console, using empty string as a delimiter
 	}
 
 	err = creator.Create(dbcreator.NewShell(options.DryRun, options.Verbose), options)
@@ -70,25 +66,33 @@ func main() {
 	}
 }
 
-func getCreator(rl Readline, dbType string, nonInteractive bool) (dbcreator.DBCreator, error) {
+var theme *huh.Theme = huh.ThemeBase16()
+
+func getCreator(dbType string, nonInteractive bool) (dbcreator.DBCreator, error) {
 	if dbType != "" {
 		return makeCreatorByID(dbType)
 	}
 	if nonInteractive {
 		return nil, fmt.Errorf("must supply database type in non-interactive mode")
 	}
-	const defaultDBType string = "postgres"
-	for {
-		creatorID, err := rl.Question("database type? [postgres, mysql, mssql, mongo, redis]", defaultDBType)
-		if err != nil {
-			return nil, err
-		}
-		creator, err := makeCreatorByID(creatorID)
-		if err == nil {
-			return creator, nil
-		}
-		fmt.Println(err)
+	err := huh.NewForm(huh.NewGroup(
+		huh.NewSelect[string]().
+			Title("Database type?").
+			Options(
+				huh.NewOption("postgres", "postgres"),
+				huh.NewOption("mssql", "mssql"),
+				huh.NewOption("mysql", "mysql"),
+				huh.NewOption("mongo", "mongo"),
+				huh.NewOption("redis", "redis"),
+			).
+			Value(&dbType),
+	)).
+		WithTheme(theme).
+		Run()
+	if err != nil {
+		return nil, err
 	}
+	return makeCreatorByID(dbType)
 }
 
 func makeCreatorByID(dbType string) (dbcreator.DBCreator, error) {
@@ -104,12 +108,63 @@ func makeCreatorByID(dbType string) (dbcreator.DBCreator, error) {
 	case "redis":
 		return redis.Creator{}, nil
 	}
-	return nil, fmt.Errorf("unknown db type '%s'. Must be one of 'postgres', 'mysql', 'mongo'", dbType)
+	return nil, fmt.Errorf("unknown db type '%s'. Must be one of 'postgres', 'mssql', 'mysql', 'mongo', or 'redis'", dbType)
 }
 
-func getOptions(rl Readline, creator dbcreator.DBCreator, args CliArgs) (dbcreator.CreateOptions, error) {
-	defaultOpts := creator.GetDefaultOpts()
+const defaultDBName = "db"
+
+func runWizard(
+	capabilities dbcreator.Capabilities,
+	validatePassword func(string) error,
+	defaultContainerName string,
+	defaults dbcreator.DefaultOpts,
+	opts *dbcreator.CreateOptions,
+) error {
+	// We're not setting any values for the fields, opting out for placeholder --
+	// in case user wants to modify the default value, they don't need to erase the current value.
+	// On a cons side, we need to explicitely check for values afterwards. We're not doing that in
+	// the runWizard, as this has to be done for non-interactive mode as well anyway.
+
+	fields := make([]huh.Field, 0)
+	if capabilities.DatabaseName && opts.Database == "" {
+		fields = append(fields, huh.NewInput().
+			Title("Database Name?").
+			Placeholder(defaultDBName).
+			Value(&opts.Database),
+		)
+	}
+	if capabilities.UserPassword {
+		if opts.User == "" {
+			fields = append(fields, huh.NewInput().
+				Title("Database User?").
+				Placeholder(defaults.User).
+				Value(&opts.User),
+			)
+		}
+		if opts.Password == "" {
+			fields = append(fields, huh.NewInput().
+				Title("Database password?").
+				EchoMode(huh.EchoModePassword).
+				Validate(validatePassword).
+				Placeholder(defaults.Password).
+				Value(&opts.Password),
+			)
+		}
+	}
+	if opts.ContainerName == "" {
+		fields = append(fields, huh.NewInput().
+			Title("Docker Container Name?").
+			Placeholder(defaultContainerName).
+			Value(&opts.ContainerName),
+		)
+	}
+
+	return huh.NewForm(huh.NewGroup(fields...).WithTheme(theme)).Run()
+}
+
+func getOptions(creator dbcreator.DBCreator, args CliArgs) (dbcreator.CreateOptions, error) {
 	capabilities := creator.GetCapabilities()
+	defaultOpts := creator.GetDefaultOpts()
 	opts := dbcreator.CreateOptions{
 		Database:      args.Database,
 		User:          args.User,
@@ -120,7 +175,7 @@ func getOptions(rl Readline, creator dbcreator.DBCreator, args CliArgs) (dbcreat
 		Verbose:       args.Verbose,
 		DryRun:        args.Dry,
 	}
-	// Setting non-interactive defaults
+	// Setting non-interactive-only defaults
 	if opts.Port == 0 {
 		opts.Port = defaultOpts.Port
 	}
@@ -128,7 +183,7 @@ func getOptions(rl Readline, creator dbcreator.DBCreator, args CliArgs) (dbcreat
 		opts.DockerTag = defaultOpts.DockerTag
 	}
 
-	// validating existing password first if it's there
+	// validating existing password first if it's there for early exit
 	if opts.Password != "" {
 		err := creator.ValidatePassword(opts.Password)
 		if err != nil {
@@ -136,63 +191,47 @@ func getOptions(rl Readline, creator dbcreator.DBCreator, args CliArgs) (dbcreat
 		}
 	}
 
-	// Filling out the rest of missing data in interactive mode if allowed
-	if capabilities.DatabaseName && opts.Database == "" {
-		if args.NonInteractive {
-			return opts, fmt.Errorf("database name is required in non-interactive mode, but not provided")
-		}
-		val, err := rl.Question("database name?", "db")
+	randomContainerName := randomname.Generate()
+
+	if !args.NonInteractive {
+		err := runWizard(capabilities, creator.ValidatePassword, randomContainerName, defaultOpts, &opts)
 		if err != nil {
-			return opts, nil
+			return opts, fmt.Errorf("error running the wizard: %w", err)
 		}
-		opts.Database = val
+	}
+
+	if opts.User == "" && defaultOpts.User != "" {
+		opts.User = defaultOpts.User
+	}
+	if opts.Password == "" && defaultOpts.Password != "" {
+		opts.Password = defaultOpts.Password
+	}
+	if opts.ContainerName == "" {
+		opts.ContainerName = randomContainerName
+	}
+
+	if capabilities.DatabaseName && opts.Database == "" {
+		opts.Database = defaultDBName
 	}
 	if !capabilities.DatabaseName && opts.Database != "" {
 		fmt.Fprintln(os.Stderr, "This DB type doesn't support database name, so provided argument is ignored")
 	}
-	if capabilities.UserPassword && opts.User == "" {
+
+	if capabilities.UserPassword {
 		if args.NonInteractive {
-			return opts, fmt.Errorf("db username is required in non-interactive mode, but not provided")
-		}
-		val, err := rl.Question("database user?", defaultOpts.User)
-		if err != nil {
-			return opts, nil
-		}
-		opts.User = val
-	}
-	if capabilities.UserPassword && opts.Password == "" {
-		if args.NonInteractive {
-			if defaultOpts.Password != "" {
+			if opts.User == "" {
+				return opts, fmt.Errorf("db username is required in non-interactive mode, but not provided")
+			}
+			if defaultOpts.Password == "" {
 				return opts, fmt.Errorf("password is required in non-interactive mode, but not provided")
 			}
-		} else {
-			for {
-				val, err := rl.Question("database password?", defaultOpts.Password)
-				if err != nil {
-					return opts, nil
-				}
-				err = creator.ValidatePassword(val)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-				opts.Password = val
-				break
-			}
 		}
-	}
-	if !capabilities.UserPassword && (opts.User != "" || opts.Password != "") {
-		fmt.Fprintln(os.Stderr, "This DB type doesn't support user/password for its auth, so provided argument is ignored")
-	}
-	if opts.ContainerName == "" {
-		if args.NonInteractive {
-			opts.ContainerName = randomname.Generate()
-		} else {
-			val, err := rl.Question("docker container name?", randomname.Generate())
-			if err != nil {
-				return opts, nil
-			}
-			opts.ContainerName = val
+	} else {
+		if opts.User != "" {
+			fmt.Fprintln(os.Stderr, "This DB type doesn't support user/password for its auth, so provided username argument is ignored")
+		}
+		if opts.Password != "" {
+			fmt.Fprintln(os.Stderr, "This DB type doesn't support user/password for its auth, so provided password argument is ignored")
 		}
 	}
 
