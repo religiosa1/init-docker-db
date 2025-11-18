@@ -17,22 +17,8 @@ actually executing them.
 
 The easiest way is to launch the script in wizard mode:
 
-```bash
-./init-docker-db
-database type? [postgres,mysql,mssql,mongo] (postgres):
-> postgres
-database name? (db):
-> my_awesome_db
-database user? (postgres):
-> my_user
-database password? (123456):
-> qwerty
-docker container name? (random-shortname):
-> mydb
+https://github.com/user-attachments/assets/e02a4770-91de-43c4-862e-6b3f2b760f77
 
-# Outputs ID of the created container on success:
-2d42f1fbfcd63c64a56a9034af26f0bffe1157c125f4921a5f6e08c4e22a311c
-```
 
 This will create a database container with the specified parameters, exposing
 its port (depending on the type, 5432 for postgres, 3306 for MySql,
@@ -42,29 +28,31 @@ Alternatively, you can configure any of the parameters and the port by the CLI
 flags:
 
 ```
-Positionals:
-  containerName  name of the database container to be created           [string]
+usage: init-docker-db [<containername>] [flags]
 
-Options:
-  -t, --type             database type
-                       [string] [choices: "postgres", "mysql", "mssql", "mongo"]
-  -u, --user             database user                                  [string]
-  -d, --database         database name                                  [string]
-  -p, --password         user's password                                [string]
-  -P, --port             TCP port to which database will be mapped to   [number]
-  -T, --tag              docker tag to use with the container           [string]
-  -n, --non-interactive  exit if any required parameters are missing   [boolean]
-  -D, --dry              dry run, printing docker command to stdout, without
-                         actually running it                           [boolean]
-  -v, --verbose          Run with verbose logging                      [boolean]
-  -h, --help             Show help                                     [boolean]
-      --version          Show version number                           [boolean]
+Create a disposable database docker container.
+
+Arguments:
+  [<containerName>]    name of the database container to be created
+
+Flags:
+  -h, --help               Show context-sensitive help.
+  -t, --type=STRING        database type
+  -u, --user=STRING        database user
+  -d, --database=STRING    database name
+  -p, --password=STRING    user's password
+  -P, --port=UINT-16       TCP port to which database will be mapped to
+  -T, --tag=STRING         docker tag to use with the container
+  -n, --non-interactive    exit if any required parameters are missing
+  -D, --dry                dry run, printing docker command to stdout, without actually running it
+  -v, --verbose            run with verbose logging
+      --version            show version and exit
+  -h, --help               show help message and exit
 
 Examples:
   init-docker-db                       Run in wizard mode
   init-docker-db --dry                 Dry-run in wizard mode
-  init-docker-db -t mssql -u app_user  Create a MsSQL database using provided
-                                       username
+  init-docker-db -t mssql -u app_user  Create a MsSQL database using provided username
 ```
 
 For MySQL and MsSQL as there is a separate root user with a predefined name
