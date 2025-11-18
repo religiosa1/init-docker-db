@@ -36,6 +36,14 @@ type CliArgs struct {
 
 var CLI CliArgs
 
+type ExitStatus int
+
+const (
+	ExitStatusSuccess ExitStatus = iota
+	ExitStatusFailedToGetCreator
+	ExitStatusFailedToCreateContainer
+)
+
 func main() {
 	kong.Parse(
 		&CLI,
@@ -51,18 +59,18 @@ func main() {
 	creator, err := getCreator(CLI.Type, CLI.NonInteractive)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(int(ExitStatusFailedToGetCreator))
 	}
 	options, err := getOptions(creator, CLI)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(int(ExitStatusFailedToGetCreator))
 	}
 
 	err = creator.Create(dbcreator.NewShell(options.DryRun, options.Verbose), options)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(2)
+		os.Exit(int(ExitStatusFailedToCreateContainer))
 	}
 }
 
@@ -145,7 +153,13 @@ func runWizard(
 			fields = append(fields, huh.NewInput().
 				Title("Database password?").
 				EchoMode(huh.EchoModePassword).
-				Validate(validatePassword).
+				Validate(func(val string) error {
+					// if value is empty we're ommiting the validation as the default value will be set later
+					if val == "" {
+						return nil
+					}
+					return validatePassword(val)
+				}).
 				Placeholder(defaults.Password).
 				Value(&opts.Password),
 			)
@@ -200,6 +214,7 @@ func getOptions(creator dbcreator.DBCreator, args CliArgs) (dbcreator.CreateOpti
 		}
 	}
 
+	// Setting default values
 	if opts.User == "" && defaultOpts.User != "" {
 		opts.User = defaultOpts.User
 	}
