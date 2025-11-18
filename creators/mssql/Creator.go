@@ -34,14 +34,13 @@ func (c Creator) GetCapabilities() dbcreator.Capabilities {
 
 func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://mcr.microsoft.com/product/mssql/server/about
-	shellOutput, err := shell.RunWithOutput("docker", "run", "-e", "ACCEPT_EULA=Y",
+	shellOutput, err := shell.RunWithTeeOutput("docker", "run", "-e", "ACCEPT_EULA=Y",
 		"--name", opts.ContainerName,
 		"--hostname", opts.ContainerName,
 		"-e", dbcreator.DockerEnv("MSSQL_SA_PASSWORD", opts.Password),
-		"-p", fmt.Sprintf("%d:%d", opts.Port, port),
+		"-p", fmt.Sprintf("%s:%d", opts.Port, port),
 		"-d", fmt.Sprintf("mcr.microsoft.com/mssql/server:%s", opts.DockerTag),
 	)
-	fmt.Println(shellOutput)
 	if err != nil {
 		return err
 	}
@@ -55,8 +54,9 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		verbose:  opts.Verbose,
 	}
 
-	v := VerboseLogger{opts.Verbose}
-	v.Log("Waiting for db to be up and running...")
+	v := NewProgressLogger(opts.Verbose)
+	defer v.Done()
+	v.LogState("Waiting for db to be up and running...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -69,14 +69,14 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		start := time.Now()
 		err := sql.RunSilent("SELECT SERVERPROPERTY('ProductVersion')")
 		end := time.Since(start)
-		v.Log("sql health check duration", end)
+		v.LogVerbose("sql health check duration", end)
 		return err
 	}, waitOpts)
 	if err != nil {
 		return fmt.Errorf("failed to wait for the database to be operational: %w", err)
 	}
 
-	v.Log("Creating the database and required data...")
+	v.LogState("Creating the database and required data...")
 
 	escapedDBName, err := escapeID(opts.Database)
 	if err != nil {
@@ -88,7 +88,7 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		return err
 	}
 
-	v.Log("Creating login")
+	v.LogState("Creating login")
 
 	escapedUser, err := escapeUser(opts.User)
 	if err != nil {
@@ -100,14 +100,14 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		return err
 	}
 
-	v.Log("Creating user")
+	v.LogState("Creating user")
 	err = sql.RunInDB(fmt.Sprintf(`create user %s for login %s`, escapedUser, escapedUser))
 	if err != nil {
 		return err
 	}
 
 	// To check available roles: Select	[name] From sysusers Where issqlrole = 1
-	v.Log("Adding required permissions")
+	v.LogState("Adding required permissions")
 	err = sql.RunInDB(fmt.Sprintf("ALTER ROLE db_owner ADD MEMBER %s", escapedUser))
 	if err != nil {
 		return err

@@ -7,10 +7,12 @@ type CreateOptions struct {
 	Database      string
 	User          string
 	Password      string
-	Port          uint16
-	DockerTag     string
-	Verbose       bool
-	DryRun        bool
+	// host port with optional IP address;
+	// see https://docs.docker.com/reference/cli/docker/container/run/#publish
+	Port      string
+	DockerTag string
+	Verbose   bool
+	DryRun    bool
 }
 
 // Capabilities are the list of DBCreator capabilities

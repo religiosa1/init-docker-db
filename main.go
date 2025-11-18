@@ -28,7 +28,8 @@ type CliArgs struct {
 	User           string `short:"u" help:"database user"`
 	Database       string `short:"d" help:"database name"`
 	Password       string `short:"p" help:"user's password"`
-	Port           uint16 `short:"P" help:"TCP port to which database will be mapped to"`
+	Port           string `short:"P" help:"port with optional IP address to which database will be mapped to"`
+	Public         bool   `help:"expose default port to outside world by mapping to 0.0.0.0 IP address"`
 	Tag            string `short:"T" help:"docker tag to use with the container"`
 	NonInteractive bool   `short:"n" help:"exit if any required parameters are missing"`
 	Dry            bool   `short:"D" help:"dry run, printing docker command to stdout, without actually running it"`
@@ -206,8 +207,12 @@ func getOptions(creator dbcreator.DBCreator, args CliArgs) (dbcreator.CreateOpti
 		DryRun:        args.Dry,
 	}
 	// Setting non-interactive-only defaults
-	if opts.Port == 0 {
-		opts.Port = defaultOpts.Port
+	if opts.Port == "" {
+		if args.Public {
+			opts.Port = fmt.Sprintf("%d", defaultOpts.Port)
+		} else {
+			opts.Port = fmt.Sprintf("127.0.0.1:%d", defaultOpts.Port)
+		}
 	}
 	if opts.DockerTag == "" {
 		opts.DockerTag = defaultOpts.DockerTag

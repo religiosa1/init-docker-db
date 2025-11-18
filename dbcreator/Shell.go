@@ -1,7 +1,9 @@
 package dbcreator
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -38,6 +40,27 @@ func (sh Shell) RunWithOutput(name string, args ...string) (string, error) {
 	cmd := exec.Command(name, args...)
 	out, err := cmd.CombinedOutput()
 	return string(out), err
+}
+
+// RunWithTeeOutput runs a child process, streaming its output to Stdout/Stderr while also capturing it as a return value
+func (sh Shell) RunWithTeeOutput(name string, args ...string) (string, error) {
+	if sh.dryRun || sh.verbose {
+		fmt.Println(makeShellCmdString(name, args...))
+	}
+	if sh.dryRun {
+		return "", nil
+	}
+	cmd := exec.Command(name, args...)
+
+	var outBuf, errBuf bytes.Buffer
+	cmd.Stdout = io.MultiWriter(os.Stdout, &outBuf)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
+
+	err := cmd.Run()
+
+	// Combine stdout and stderr for the return value, similar to CombinedOutput
+	combined := outBuf.String() + errBuf.String()
+	return combined, err
 }
 
 // RunSilent runs a child process, printing its outputs to Stdout/Stderr only in the verbose mode
