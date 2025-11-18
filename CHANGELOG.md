@@ -5,12 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- [huh](https://github.com/charmbracelet/huh) TUI added in the wizard mode.
+
+### Changed
+
+- Internal refactoring for more robust error handling and better
+  alignment with golang naming conventions
+
 ## [1.1.0] - 2025.08.23
 
 ### Added
+
 - Redis container creation
 
 ### Fixed
+
 - Some typos in error messages
 
 ## [1.0.0] - 2025.04.02
@@ -18,8 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Full rewrite to golang.
-- Postgres default password is now "password" and creation of DB without password
-  is forbidden, as it results in failed container.
+- Postgres default password is now "password" and creation of DB without
+  password is forbidden, as it results in failed container.
 - `Done` suffix removed from thr program output, only direct `docker run`
   output with container's ID is now printed in non-verbose mode.
 
@@ -31,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- max delay clamping in exponential back-off waiting for MsSQL DB to be up and running prior to running SQL commands
+- max delay clamping in exponential back-off waiting for MsSQL DB to be up and
+  running prior to running SQL commands
 - MySQL non-root username fix (previously matched to password)
 
 ### Changed
