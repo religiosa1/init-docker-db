@@ -1,7 +1,6 @@
 package mssql
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -62,13 +61,9 @@ func (r SQLInContainerRunner) RunInDB(sql string) error {
 	return r.Run(fmt.Sprintf("use %s\n%s", escapedDBName, sql))
 }
 
-var mssqlErrRe *regexp.Regexp
+var mssqlErrRe = regexp.MustCompile(`^Msg (?:\d+), Level (\d+), State (?:\d+), Server (?:[^,]+), Line (?:\d+)`)
 
 func parseSQLCommandError(output string) error {
-	if mssqlErrRe == nil {
-		mssqlErrRe = regexp.MustCompile(`^Msg (?:\d+), Level (\d+), State (?:\d+), Server (?:[^,]+), Line (?:\d+)`)
-	}
-
 	matches := mssqlErrRe.FindStringSubmatch(output)
 	if matches == nil {
 		return nil
@@ -83,7 +78,7 @@ func parseSQLCommandError(output string) error {
 	// Any severity level less or equal 10 we treat as not an error
 	// https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-error-severities?view=sql-server-ver16#levels-of-severity
 	if errorLevel > 10 {
-		return errors.New("sql error")
+		return fmt.Errorf("sql error: %s", output)
 	}
 	return nil
 }

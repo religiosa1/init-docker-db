@@ -1,4 +1,4 @@
-// Package postgres implements DBCreator interface for PostreSQL
+// Package postgres implements DBCreator interface for PostgreSQL
 package postgres
 
 import (

@@ -21,7 +21,7 @@ func escapeID(name string) (string, error) {
 
 func escapeUser(name string) (string, error) {
 	if len(name) >= 128 {
-		return "", errors.New("user name cannot be longer than 128 charaters")
+		return "", errors.New("user name cannot be longer than 128 characters")
 	}
 	return escapeID(name)
 }

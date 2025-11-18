@@ -1,5 +1,5 @@
-// Package dbcreator provides an inteface for a specific type of DBCreator
-// e.g. Posrgres, MYSQL, etc.
+// Package dbcreator provides an interface for a specific type of DBCreator
+// e.g. Postgres, MYSQL, etc.
 package dbcreator
 
 type CreateOptions struct {

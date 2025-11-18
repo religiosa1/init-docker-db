@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reverse order)
 - mssql container failed to create after migration to mssql-tools18
   [microsoft/mssql-docker/issues/892](https://github.com/microsoft/mssql-docker/issues/892)
+- various typos
 
 ## 1.2.0 - 2025.11.18
 

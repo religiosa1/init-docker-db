@@ -146,7 +146,7 @@ func runWizard(
 ) error {
 	// We're not setting any values for the fields, opting out for placeholder --
 	// in case user wants to modify the default value, they don't need to erase the current value.
-	// On a cons side, we need to explicitely check for values afterwards. We're not doing that in
+	// On a cons side, we need to explicitly check for values afterwards. We're not doing that in
 	// the runWizard, as this has to be done for non-interactive mode as well anyway.
 
 	fields := make([]huh.Field, 0)
@@ -170,7 +170,7 @@ func runWizard(
 				Title("Database password?").
 				EchoMode(huh.EchoModePassword).
 				Validate(func(val string) error {
-					// if value is empty we're ommiting the validation as the default value will be set later
+					// if value is empty we're omitting the validation as the default value will be set later
 					if val == "" {
 						return nil
 					}

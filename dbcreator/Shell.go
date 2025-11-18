@@ -29,7 +29,7 @@ func NewShell(dryRun bool, verbose bool) Shell {
 	}
 }
 
-// RunWithOutput runs a new shell instance capturing it's stdtout as a return value
+// RunWithOutput runs a new shell instance capturing it's stdout as a return value
 func (sh Shell) RunWithOutput(name string, args ...string) (string, error) {
 	if sh.dryRun || sh.verbose {
 		fmt.Println(makeShellCmdString(name, args...))

@@ -117,7 +117,7 @@ func Test_escapeUser(t *testing.T) {
 }
 
 func Test_escapeStr(t *testing.T) {
-	t.Run("always wraps a string in single quots", func(t *testing.T) {
+	t.Run("always wraps a string in single quotes", func(t *testing.T) {
 		got := escapeStr("foo")
 		if want := "'foo'"; want != got {
 			t.Errorf("Values do not match, want '%s', got '%s'", want, got)
@@ -132,7 +132,7 @@ func Test_escapeStr(t *testing.T) {
 		{input: "'ofoo", output: "'''ofoo'"},
 	}
 	for _, tt := range singleQuotesValues {
-		t.Run("turns single quots in strin into a pair of singlequots", func(t *testing.T) {
+		t.Run("turns single quotes in string into a pair of singlequote", func(t *testing.T) {
 			got := escapeStr(tt.input)
 			if want := tt.output; want != got {
 				t.Errorf("Values do not match, want '%s', got '%s'", want, got)

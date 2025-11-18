@@ -120,7 +120,7 @@ var (
 	ErrPasswordTooShort  error = errors.New("password is too short (must be at least 10 chars)")
 	ErrPasswordTooSimple error = errors.New(
 		"password doesn't meet the complexity requirements " +
-			"(must contain 3 out of 4 char types: lowercase char, uppercase char, digit, nonalphanumeric)",
+			"(must contain 3 out of 4 char types: lowercase char, uppercase char, digit, non-alphanumeric)",
 	)
 )
 
