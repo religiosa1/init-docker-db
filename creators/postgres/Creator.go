@@ -33,7 +33,7 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		"-e", dbcreator.DockerEnv("POSTGRES_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("POSTGRES_USER", opts.User),
 		"-e", dbcreator.DockerEnv("POSTGRES_DB", opts.Database),
-		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
+		"-p", fmt.Sprintf("%d:%d", opts.Port, port),
 		"-d", fmt.Sprintf("postgres:%s", opts.DockerTag),
 	)
 }

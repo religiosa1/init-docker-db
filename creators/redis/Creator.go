@@ -30,7 +30,7 @@ func (c Creator) GetCapabilities() dbcreator.Capabilities {
 func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://hub.docker.com/_/redis/
 	return shell.Run("docker", "run", "--name", opts.ContainerName,
-		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
+		"-p", fmt.Sprintf("%d:%d", opts.Port, port),
 		"-d", fmt.Sprintf("redis:%s", opts.DockerTag),
 		"redis-server", "--save", "60", "1", "--loglevel", "warning",
 	)

@@ -34,7 +34,7 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		"-e", dbcreator.DockerEnv("MYSQL_ROOT_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("MYSQL_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("MYSQL_DATABASE", opts.Database),
-		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
+		"-p", fmt.Sprintf("%d:%d", opts.Port, port),
 		"-d", fmt.Sprintf("mysql:%s", opts.DockerTag),
 	)
 }

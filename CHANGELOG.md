@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- early exit on docker bin unavailable in PATH
+- docker container name validation in wizard mode
+
+### Fixed
+
+- port mapping when using the container on a non-standard port (used to be in
+  reverse order)
+- mssql container failed to create after migration to mssql-tools18
+  [microsoft/mssql-docker/issues/892](https://github.com/microsoft/mssql-docker/issues/892)
+
 ## 1.2.0 - 2025.11.18
 
 ### Added

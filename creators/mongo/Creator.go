@@ -33,7 +33,7 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		"-e", dbcreator.DockerEnv("MONGO_INITDB_ROOT_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("MONGO_INITDB_ROOT_USERNAME", opts.User),
 		"-e", dbcreator.DockerEnv("MONGO_INITDB_DATABASE", opts.Database),
-		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
+		"-p", fmt.Sprintf("%d:%d", opts.Port, port),
 		"-d", fmt.Sprintf("mongo:%s", opts.DockerTag),
 	)
 }

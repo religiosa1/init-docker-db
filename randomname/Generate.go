@@ -1,5 +1,5 @@
 // Package randomname provides an utility function for generating a random
-// adj-noun name for a dcker container
+// adj-noun name for a docker container
 package randomname
 
 import (

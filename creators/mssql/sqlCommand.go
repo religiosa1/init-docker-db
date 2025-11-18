@@ -38,9 +38,11 @@ func (r SQLInContainerRunner) run(sql string) (string, error) {
 			fmt.Printf("SQL: %s\n", sql)
 		}
 	}
+	// See https://github.com/microsoft/mssql-docker/issues/892
+	// Previous versions used mssql-tools, now it's mssql-tools18
 	out, err := r.shell.RunWithOutput(
 		"docker", "exec", r.contID,
-		"/opt/mssql-tools/bin/sqlcmd", "-S", "localhost",
+		"/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "localhost",
 		"-U", "SA", "-P", r.password, "-Q", sql,
 	)
 	if r.verbose {

@@ -38,7 +38,7 @@ func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) err
 		"--name", opts.ContainerName,
 		"--hostname", opts.ContainerName,
 		"-e", dbcreator.DockerEnv("MSSQL_SA_PASSWORD", opts.Password),
-		"-p", fmt.Sprintf("%d:%d", port, opts.Port),
+		"-p", fmt.Sprintf("%d:%d", opts.Port, port),
 		"-d", fmt.Sprintf("mcr.microsoft.com/mssql/server:%s", opts.DockerTag),
 	)
 	fmt.Println(shellOutput)

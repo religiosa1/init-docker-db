@@ -8,6 +8,7 @@ build
 *.dll
 *.so
 *.dylib
+/init-docker-db
 
 # Test binary, built with `go test -c`
 *.test
