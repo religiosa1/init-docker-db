@@ -34,13 +34,15 @@ func (c Creator) GetCapabilities() dbcreator.Capabilities {
 
 func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://mcr.microsoft.com/product/mssql/server/about
-	shellOutput, err := shell.RunWithTeeOutput("docker", "run", "-e", "ACCEPT_EULA=Y",
+	args := []string{
+		"run", "-e", "ACCEPT_EULA=Y",
 		"--name", opts.ContainerName,
 		"--hostname", opts.ContainerName,
 		"-e", dbcreator.DockerEnv("MSSQL_SA_PASSWORD", opts.Password),
-		"-p", fmt.Sprintf("%s:%d", opts.Port, port),
-		"-d", fmt.Sprintf("mcr.microsoft.com/mssql/server:%s", opts.DockerTag),
-	)
+	}
+	args = append(args, dbcreator.CreatePortBindingsArgument(port, opts.Ports)...)
+	args = append(args, "-d", fmt.Sprintf("mcr.microsoft.com/mssql/server:%s", opts.DockerTag))
+	shellOutput, err := shell.RunWithTeeOutput("docker", args...)
 	if err != nil {
 		return err
 	}

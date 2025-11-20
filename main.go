@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"regexp"
@@ -23,19 +24,19 @@ import (
 var ldVersion = "" // Version set by -ldflags during the Taskfile build
 
 type CliArgs struct {
-	ContainerName  string `arg:"" optional:"" name:"containerName" help:"name of the database container to be created"`
-	Type           string `short:"t" help:"database type"`
-	User           string `short:"u" help:"database user"`
-	Database       string `short:"d" help:"database name"`
-	Password       string `short:"p" help:"user's password"`
-	Port           string `short:"P" help:"port with optional IP address to which database will be mapped to"`
-	Public         bool   `help:"expose default port to outside world by mapping to 0.0.0.0 IP address"`
-	Tag            string `short:"T" help:"docker tag to use with the container"`
-	NonInteractive bool   `short:"n" help:"exit if any required parameters are missing"`
-	Dry            bool   `short:"D" help:"dry run, printing docker command to stdout, without actually running it"`
-	Verbose        bool   `short:"v" help:"run with verbose logging"`
-	Version        bool   `help:"show version and exit"`
-	Help           bool   `short:"h" help:"show help message and exit"`
+	ContainerName  string   `arg:"" optional:"" name:"containerName" help:"name of the database container to be created"`
+	Type           string   `short:"t" help:"database type"`
+	User           string   `short:"u" help:"database user"`
+	Database       string   `short:"d" help:"database name"`
+	Password       string   `short:"P" help:"user's password"`
+	Port           []string `short:"p" sep:"none" help:"port with optional IP address to which database will be mapped to"`
+	Public         bool     `help:"expose default port to outside world by mapping to 0.0.0.0 IP address"`
+	Tag            string   `short:"T" help:"docker tag to use with the container"`
+	NonInteractive bool     `short:"n" help:"exit if any required parameters are missing"`
+	Dry            bool     `short:"D" help:"dry run, printing docker command to stdout, without actually running it"`
+	Verbose        bool     `short:"v" help:"run with verbose logging"`
+	Version        bool     `help:"show version and exit"`
+	Help           bool     `short:"h" help:"show help message and exit"`
 }
 
 var CLI CliArgs
@@ -148,7 +149,6 @@ func runWizard(
 	// in case user wants to modify the default value, they don't need to erase the current value.
 	// On a cons side, we need to explicitly check for values afterwards. We're not doing that in
 	// the runWizard, as this has to be done for non-interactive mode as well anyway.
-
 	fields := make([]huh.Field, 0)
 	if capabilities.DatabaseName && opts.Database == "" {
 		fields = append(fields, huh.NewInput().
@@ -201,18 +201,19 @@ func getOptions(creator dbcreator.DBCreator, args CliArgs) (dbcreator.CreateOpti
 		User:          args.User,
 		Password:      args.Password,
 		ContainerName: args.ContainerName,
-		Port:          args.Port,
 		DockerTag:     args.Tag,
 		Verbose:       args.Verbose,
 		DryRun:        args.Dry,
 	}
 	// Setting non-interactive-only defaults
-	if opts.Port == "" {
+	if len(args.Port) == 0 {
 		if args.Public {
-			opts.Port = fmt.Sprintf("%d", defaultOpts.Port)
+			opts.Ports = []string{fmt.Sprintf("%d", defaultOpts.Port)}
 		} else {
-			opts.Port = fmt.Sprintf("127.0.0.1:%d", defaultOpts.Port)
+			opts.Ports = getLocalhostBindings(defaultOpts.Port)
 		}
+	} else {
+		opts.Ports = args.Port
 	}
 	if opts.DockerTag == "" {
 		opts.DockerTag = defaultOpts.DockerTag
@@ -347,4 +348,40 @@ func showVersion() {
 	}
 
 	fmt.Printf("%s\n", buildInfoVersion)
+}
+
+func getLocalhostBindings(port uint16) []string {
+	var bindings []string
+
+	ipV4 := isIPv4Available()
+	ipV6 := isIPv6Available()
+	// IPv4 loopback OR fallback value
+	if ipV4 || (!ipV4 && !ipV6) {
+		bindings = append(bindings, fmt.Sprintf("127.0.0.1:%d", port))
+	}
+
+	// IPv6 loopback
+	if isIPv6Available() {
+		bindings = append(bindings, fmt.Sprintf("[::1]:%d", port))
+	}
+
+	return bindings
+}
+
+func isIPv4Available() bool {
+	ln, err := net.Listen("tcp4", "127.0.0.1:0")
+	if err != nil {
+		return false
+	}
+	_ = ln.Close()
+	return true
+}
+
+func isIPv6Available() bool {
+	ln, err := net.Listen("tcp6", "[::1]:0")
+	if err != nil {
+		return false
+	}
+	_ = ln.Close()
+	return true
 }

@@ -29,13 +29,16 @@ func (c Creator) GetCapabilities() dbcreator.Capabilities {
 
 func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://hub.docker.com/_/mongo
-	return shell.Run("docker", "run", "--name", opts.ContainerName,
+	args := []string{
+		"run", "--name", opts.ContainerName,
 		"-e", dbcreator.DockerEnv("MONGO_INITDB_ROOT_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("MONGO_INITDB_ROOT_USERNAME", opts.User),
 		"-e", dbcreator.DockerEnv("MONGO_INITDB_DATABASE", opts.Database),
-		"-p", fmt.Sprintf("%s:%d", opts.Port, port),
-		"-d", fmt.Sprintf("mongo:%s", opts.DockerTag),
-	)
+	}
+	args = append(args, dbcreator.CreatePortBindingsArgument(port, opts.Ports)...)
+	args = append(args, "-d", fmt.Sprintf("mongo:%s", opts.DockerTag))
+
+	return shell.Run("docker", args...)
 }
 
 func (c Creator) ValidatePassword(password string) error {

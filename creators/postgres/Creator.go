@@ -29,13 +29,15 @@ func (c Creator) GetCapabilities() dbcreator.Capabilities {
 
 func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://hub.docker.com/_/postgres
-	return shell.Run("docker", "run", "--name", opts.ContainerName,
+	args := []string{
+		"run", "--name", opts.ContainerName,
 		"-e", dbcreator.DockerEnv("POSTGRES_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("POSTGRES_USER", opts.User),
 		"-e", dbcreator.DockerEnv("POSTGRES_DB", opts.Database),
-		"-p", fmt.Sprintf("%s:%d", opts.Port, port),
-		"-d", fmt.Sprintf("postgres:%s", opts.DockerTag),
-	)
+	}
+	args = append(args, dbcreator.CreatePortBindingsArgument(port, opts.Ports)...)
+	args = append(args, "-d", fmt.Sprintf("postgres:%s", opts.DockerTag))
+	return shell.Run("docker", args...)
 }
 
 func (c Creator) ValidatePassword(password string) error {

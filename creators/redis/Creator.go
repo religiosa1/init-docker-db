@@ -29,11 +29,12 @@ func (c Creator) GetCapabilities() dbcreator.Capabilities {
 
 func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://hub.docker.com/_/redis/
-	return shell.Run("docker", "run", "--name", opts.ContainerName,
-		"-p", fmt.Sprintf("%s:%d", opts.Port, port),
-		"-d", fmt.Sprintf("redis:%s", opts.DockerTag),
-		"redis-server", "--save", "60", "1", "--loglevel", "warning",
-	)
+	args := []string{"run", "--name", opts.ContainerName}
+	args = append(args, dbcreator.CreatePortBindingsArgument(port, opts.Ports)...)
+	args = append(args, "-d", fmt.Sprintf("redis:%s", opts.DockerTag),
+		"redis-server", "--save", "60", "1", "--loglevel", "warning")
+
+	return shell.Run("docker", args...)
 }
 
 func (c Creator) ValidatePassword(password string) error {

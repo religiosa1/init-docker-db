@@ -29,14 +29,16 @@ func (c Creator) GetCapabilities() dbcreator.Capabilities {
 
 func (c Creator) Create(shell dbcreator.Shell, opts dbcreator.CreateOptions) error {
 	// https://hub.docker.com/_/mysql
-	return shell.Run("docker", "run", "--name", opts.ContainerName,
+	args := []string{
+		"run", "--name", opts.ContainerName,
 		"-e", dbcreator.DockerEnv("MYSQL_USER", opts.User),
 		"-e", dbcreator.DockerEnv("MYSQL_ROOT_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("MYSQL_PASSWORD", opts.Password),
 		"-e", dbcreator.DockerEnv("MYSQL_DATABASE", opts.Database),
-		"-p", fmt.Sprintf("%s:%d", opts.Port, port),
-		"-d", fmt.Sprintf("mysql:%s", opts.DockerTag),
-	)
+	}
+	args = append(args, dbcreator.CreatePortBindingsArgument(port, opts.Ports)...)
+	args = append(args, "-d", fmt.Sprintf("mysql:%s", opts.DockerTag))
+	return shell.Run("docker", args...)
 }
 
 func (c Creator) ValidatePassword(password string) error {

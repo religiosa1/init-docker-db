@@ -12,14 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - early exit on docker bin unavailable in PATH
 - docker container name validation in wizard mode
 - additional progress indicator for mssql initialization process
+- address can now be supplied alongside a port for binding as specified in the
+  [docker CLI docs](https://docs.docker.com/reference/cli/docker/container/run/#publish)
+- multiple bound ports/addresses can now be provided through the CLI
 
 ### Changed
 
-- ports now by default published only on 127.0.0.1 and won't be unavailable
-  from beyond your machine. This can be modified by the new `--public` flag.
-- you can now specify a port override in a full string format, besides just
-  port number as specified in the
-  [docker CLI docs](https://docs.docker.com/reference/cli/docker/container/run/#publish)
+- **BREAKING**: `-p` and `-P` flags semantic exchanged for consistency with
+  the `docker run` command
+- ports now by default published only on 127.0.0.1/\[::1] and won't be available
+  outside of your machine. This can be modified with the new `--public` flag
 
 ### Fixed
 
