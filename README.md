@@ -17,7 +17,7 @@ actually executing them.
 
 The easiest way is to launch the script in wizard mode:
 
-<https://github.com/user-attachments/assets/e02a4770-91de-43c4-862e-6b3f2b760f77>
+https://github.com/user-attachments/assets/c3b858a0-ae3d-48a5-8853-f71db927284b
 
 This will create a database container with the specified parameters, exposing
 its port (depending on the type, 5432 for postgres, 3306 for MySql,
